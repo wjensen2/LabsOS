@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fountain Labs - Vintage 90s Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        :root {
+            --retro-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --window-bg: #c0c0c0;
+            --window-border: #808080;
+            --window-border-light: #dfdfdf;
+            --window-border-dark: #404040;
+            --taskbar-bg: #c0c0c0;
+            --button-bg: #c0c0c0;
+            --text-color: #000000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--retro-bg);
+            color: var(--text-color);
+            font-family: 'MS Sans Serif', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .pixel-font {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            line-height: 1.4;
+        }
+
+        .ascii-logo {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 10px;
+            line-height: 1.1;
+            color: #ff8c42;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.3);
+            white-space: pre;
+            letter-spacing: 0px;
+        }
+
+        .desktop {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: var(--retro-bg);
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(255,255,255,0.05) 0%, transparent 50%);
+        }
+
+        .desktop-title {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            color: white;
+        }
+
+        .desktop-version {
+            color: white;
+            font-size: 9px;
+            margin-top: 8px;
+            opacity: 0.75;
+        }
+
+        .desktop-date {
+            color: white;
+            font-size: 9px;
+            margin-top: 4px;
+            opacity: 0.75;
+        }
+
+        .window {
+            position: absolute;
+            background: var(--window-bg);
+            border: 2px outset var(--window-border);
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 10;
+            transition: z-index 0s;
+        }
+
+        .window.dragging {
+            z-index: 1000;
+            transition: none;
+        }
+
+        .resize-handle {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 16px;
+            height: 16px;
+            cursor: nw-resize;
+            background: linear-gradient(-45deg, transparent 0%, transparent 30%, #808080 30%, #808080 40%, transparent 40%, transparent 50%, #808080 50%, #808080 60%, transparent 60%, transparent 70%, #808080 70%, #808080 80%, transparent 80%);
+        }
+
+        .resize-handle:hover {
+            background: linear-gradient(-45deg, transparent 0%, transparent 30%, #606060 30%, #606060 40%, transparent 40%, transparent 50%, #606060 50%, #606060 60%, transparent 60%, transparent 70%, #606060 70%, #606060 80%, transparent 80%);
+        }
+
+        .window.resizing {
+            z-index: 1000;
+            transition: none;
+        }
+
+        .window.visible {
+            display: block;
+        }
+
+        .window-title-bar {
+            background: linear-gradient(90deg, #0080ff 0%, #004080 100%);
+            color: white;
+            padding: 2px 4px;
+            font-size: 11px;
+            font-weight: bold;
+            border-bottom: 1px solid var(--window-border-dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+            user-select: none;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 1px;
+        }
+
+        .window-control {
+            width: 16px;
+            height: 14px;
+            background: #c0c0c0;
+            border: 1px outset #808080;
+            font-size: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .window-control:hover {
+            background: #d4d4d4;
+        }
+
+        .window-control:active {
+            border: 1px inset #808080;
+        }
+
+        .window-content {
+            padding: 16px;
+            height: calc(100% - 20px);
+            overflow-y: auto;
+        }
+
+        .taskbar {
+            background: var(--taskbar-bg);
+            border-top: 1px solid var(--window-border-light);
+            border-bottom: 1px solid var(--window-border-dark);
+            height: 40px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            gap: 4px;
+        }
+
+        .taskbar-button {
+            background: var(--button-bg);
+            border: 1px outset var(--window-border);
+            padding: 6px 12px;
+            font-size: 11px;
+            cursor: pointer;
+            min-width: 80px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .taskbar-button:hover {
+            background: #d4d4d4;
+        }
+
+        .taskbar-button.active {
+            border: 1px inset var(--window-border);
+            background: #a0a0a0;
+        }
+
+        .taskbar-time {
+            margin-left: auto;
+            font-size: 11px;
+        }
+
+        .project-card {
+            margin-bottom: 16px;
+            padding: 12px;
+            border: 1px solid #808080;
+            background: white;
+        }
+
+        .project-title {
+            font-weight: bold;
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+
+        .project-description {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            background: var(--window-bg);
+            border: 1px inset var(--window-border);
+            height: 16px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .progress-bar-fill {
+            background: #0080ff;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 10px;
+            text-align: right;
+        }
+
+        .vintage-progress-bar {
+            background: #f0f0f0;
+            border: 2px inset var(--window-border);
+            height: 20px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            margin-bottom: 4px;
+        }
+
+        .progress-segment {
+            width: 10%;
+            height: 100%;
+            border-right: 1px solid #888;
+            position: relative;
+            background: #e8e8e8;
+        }
+
+        .progress-segment:last-child {
+            border-right: none;
+        }
+
+        .progress-segment.filled {
+            background: linear-gradient(to bottom, #4CAF50 0%, #45a049 100%);
+        }
+
+        .retro-button {
+            background: var(--button-bg);
+            border: 2px outset var(--window-border);
+            padding: 4px 8px;
+            font-size: 11px;
+            cursor: pointer;
+            min-width: 75px;
+        }
+
+        .retro-button:hover {
+            background: #d4d4d4;
+        }
+
+        .retro-button:active {
+            border: 2px inset var(--window-border);
+            background: #a0a0a0;
+        }
+
+        .team-member {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid #808080;
+            background: white;
+            margin-bottom: 12px;
+        }
+
+        .member-avatar {
+            width: 32px;
+            height: 32px;
+            background: #e0e0e0;
+            border: 1px solid #808080;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .status-dot {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid white;
+        }
+
+        .status-online { background: #00ff00; }
+        .status-away { background: #ffff00; }
+        .status-offline { background: #808080; }
+
+        .member-info h3 {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .member-info p {
+            font-size: 10px;
+            color: #666;
+        }
+
+        .ai-badge {
+            background: #0080ff;
+            color: white;
+            padding: 2px 6px;
+            font-size: 9px;
+            border-radius: 2px;
+        }
+
+        .desktop-icon {
+            position: absolute;
+            width: 64px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s ease;
+        }
+
+        .desktop-icon.dragging {
+            z-index: 1000;
+            transform: scale(1.1);
+            transition: none;
+        }
+
+        .desktop-icon.selected .icon-image {
+            background: linear-gradient(135deg, #e8d5c0 0%, #d4a98a 50%, #c89b87 100%);
+            border: 2px outset #f0d5c0;
+        }
+
+        .desktop-icon:hover .icon-image {
+            background: linear-gradient(135deg, #e8d5c0 0%, #d4a98a 50%, #c89b87 100%);
+        }
+
+        .desktop-icon.dragging .icon-image {
+            background: linear-gradient(135deg, #d4b5a0 0%, #c4a48a 50%, #b89b87 100%);
+        }
+
+        .icon-image::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 32px;
+            height: 32px;
+            background-image: url('/Users/willjensen/Downloads/bookmark-tabs_1f4d1.png');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            pointer-events: none;
+        }
+
+        .icon-image {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #d4b5a0 0%, #c4a48a 50%, #b89b87 100%);
+            border: 2px outset #e0c5b0;
+            margin: 0 auto 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: filter 0.2s;
+            position: relative;
+        }
+
+        .icon-label {
+            font-size: 10px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            line-height: 1.2;
+        }
+
+        .start-button {
+            background: var(--button-bg);
+            border: 2px outset var(--window-border);
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-right: 8px;
+        }
+
+        .icon-img {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+        }
+
+        .taskbar-button .icon-img {
+            width: 14px;
+            height: 14px;
+        }
+
+        .start-button:hover {
+            background: #d4d4d4;
+        }
+
+        .start-button.active {
+            border: 2px inset var(--window-border);
+            background: #a0a0a0;
+        }
+
+        .start-menu {
+            position: absolute;
+            bottom: 40px;
+            left: 8px;
+            width: 250px;
+            background: var(--window-bg);
+            border: 2px outset var(--window-border);
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+            display: none;
+            z-index: 2000;
+        }
+
+        .start-menu.visible {
+            display: block;
+        }
+
+        .start-menu-header {
+            background: linear-gradient(90deg, #0080ff 0%, #004080 100%);
+            color: white;
+            padding: 8px 12px;
+            font-size: 11px;
+            font-weight: bold;
+            border-bottom: 1px solid var(--window-border-dark);
+        }
+
+        .start-menu-item {
+            padding: 6px 12px;
+            font-size: 11px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #e0e0e0;
+            position: relative;
+        }
+
+        .start-menu-item:hover {
+            background: #0080ff;
+            color: white;
+        }
+
+        .start-menu-item.has-submenu::after {
+            content: "▶";
+            margin-left: auto;
+            font-size: 8px;
+        }
+
+        .submenu {
+            position: absolute;
+            left: 100%;
+            top: -2px;
+            width: 200px;
+            background: var(--window-bg);
+            border: 2px outset var(--window-border);
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+            display: none;
+            z-index: 2001;
+        }
+
+        .submenu.visible {
+            display: block;
+        }
+
+        .submenu-item {
+            padding: 4px 12px;
+            font-size: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .submenu-item:hover {
+            background: #0080ff;
+            color: white;
+        }
+
+        .submenu-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="desktop">
+        <!-- Desktop Title -->
+        <div class="desktop-title">
+            <div class="ascii-logo">███████  ██████  ██    ██ ███    ██ ████████  █████  ██ ███    ██ 
+██      ██    ██ ██    ██ ████   ██    ██    ██   ██ ██ ████   ██ 
+█████   ██    ██ ██    ██ ██ ██  ██    ██    ███████ ██ ██ ██  ██ 
+██      ██    ██ ██    ██ ██  ██ ██    ██    ██   ██ ██ ██  ██ ██ 
+██       ██████   ██████  ██   ████    ██    ██   ██ ██ ██   ████ 
+                                                                   
+██       █████  ██████  ███████                                   
+██      ██   ██ ██   ██ ██                                        
+██      ███████ ██████  ███████                                   
+██      ██   ██ ██   ██      ██                                   
+███████ ██   ██ ██████  ███████                                   </div>
+            <div class="desktop-version">Version 1.0</div>
+            <div class="desktop-date" id="current-date"></div>
+        </div>
+
+        <!-- Desktop Icons -->
+        <div class="desktop-icon" style="bottom: 80px; right: 20px;" data-app="prdbuilder">
+            <div class="icon-image"></div>
+            <div class="icon-label">PRD Builder</div>
+        </div>
+
+        <!-- Projects Window -->
+        <div class="window" id="projects-window" style="left: 50px; top: 50px; width: 450px; height: 400px;">
+            <div class="window-title-bar">
+                <span>Projects - Fountain Labs</span>
+                <div class="window-controls">
+                    <div class="window-control">_</div>
+                    <div class="window-control">□</div>
+                    <div class="window-control" onclick="closeWindow('projects')">×</div>
+                </div>
+            </div>
+            <div class="window-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 style="font-size: 12px; font-weight: bold;">Current Projects</h2>
+                    <button class="retro-button">+ Suggest</button>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-title">Vintage Web Portal</div>
+                    <div class="project-description">Creating a 90s-style team dashboard</div>
+                    <div class="vintage-progress-bar">
+                        <div class="progress-segment filled"></div>
+                        <div class="progress-segment filled"></div>
+                        <div class="progress-segment filled"></div>
+                        <div class="progress-segment filled"></div>
+                        <div class="progress-segment filled"></div>
+                        <div class="progress-segment filled"></div>
+                        <div class="progress-segment filled"></div>
+                        <div class="progress-segment"></div>
+                        <div class="progress-segment"></div>
+                        <div class="progress-segment"></div>
+                    </div>
+                    <div class="progress-text">75%</div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-title">AI Assistant Integration</div>
+                    <div class="project-description">Adding Founty to team workflows</div>
+                    <div class="vintage-progress-bar">
+                        <div class="progress-segment filled"></div>
+                        <div class="progress-segment filled"></div>
+                        <div class="progress-segment filled"></div>
+                        <div class="progress-segment filled"></div>
+                        <div class="progress-segment"></div>
+                        <div class="progress-segment"></div>
+                        <div class="progress-segment"></div>
+                        <div class="progress-segment"></div>
+                        <div class="progress-segment"></div>
+                        <div class="progress-segment"></div>
+                    </div>
+                    <div class="progress-text">40%</div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-title">Music Sync Platform</div>
+                    <div class="project-description">Spotify playlist integration system</div>
+                    <div class="vintage-progress-bar">
+                        <div class="progress-segment filled"></div>
+                        <div class="progress-segment"></div>
+                        <div class="progress-segment"></div>
+                        <div class="progress-segment"></div>
+                        <div class="progress-segment"></div>
+                        <div class="progress-segment"></div>
+                        <div class="progress-segment"></div>
+                        <div class="progress-segment"></div>
+                        <div class="progress-segment"></div>
+                        <div class="progress-segment"></div>
+                    </div>
+                    <div class="progress-text">15%</div>
+                </div>
+            </div>
+            <div class="resize-handle"></div>
+        </div>
+
+        <!-- Team Window -->
+        <div class="window" id="team-window" style="left: 150px; top: 100px; width: 350px; height: 350px;">
+            <div class="window-title-bar">
+                <span>Team - Fountain Labs</span>
+                <div class="window-controls">
+                    <div class="window-control">_</div>
+                    <div class="window-control">□</div>
+                    <div class="window-control" onclick="closeWindow('team')">×</div>
+                </div>
+            </div>
+            <div class="window-content">
+                <h2 style="font-size: 12px; font-weight: bold; margin-bottom: 16px;">Fountain Labs Team</h2>
+
+                <div class="team-member">
+                    <div class="member-avatar">
+                        👤
+                        <div class="status-dot status-online"></div>
+                    </div>
+                    <div class="member-info">
+                        <h3>@will</h3>
+                        <p>Lead Developer</p>
+                        <p>Online</p>
+                    </div>
+                </div>
+
+                <div class="team-member">
+                    <div class="member-avatar">
+                        🤖
+                        <div class="status-dot status-online"></div>
+                    </div>
+                    <div class="member-info">
+                        <h3>Founty</h3>
+                        <p>AI Assistant</p>
+                        <p>Online</p>
+                    </div>
+                    <div class="ai-badge">AI</div>
+                </div>
+
+                <div style="margin-top: 24px; padding: 12px; border: 1px solid #808080; background: #f0f0f0;">
+                    <h3 style="font-size: 11px; font-weight: bold; margin-bottom: 8px;">Team Stats</h3>
+                    <div style="font-size: 10px;">
+                        <div>Total Members: 2</div>
+                        <div>Online: 2</div>
+                        <div>AI Assistants: 1</div>
+                    </div>
+                </div>
+            </div>
+            <div class="resize-handle"></div>
+        </div>
+
+        <!-- Playlist Window -->
+        <div class="window" id="playlist-window" style="left: 250px; top: 150px; width: 400px; height: 380px;">
+            <div class="window-title-bar">
+                <span>Playlist - Fountain Labs</span>
+                <div class="window-controls">
+                    <div class="window-control">_</div>
+                    <div class="window-control">□</div>
+                    <div class="window-control" onclick="closeWindow('playlist')">×</div>
+                </div>
+            </div>
+            <div class="window-content">
+                <h2 style="font-size: 12px; font-weight: bold; margin-bottom: 16px;">Fountain Labs Playlist</h2>
+
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 120px; border: 1px solid #808080; background: #f0f0f0; margin-bottom: 16px;">
+                    <div style="font-size: 32px; margin-bottom: 8px;">🎵</div>
+                    <div style="font-size: 11px; color: #666; text-align: center;">
+                        Spotify Integration Coming Soon
+                    </div>
+                </div>
+
+                <div style="padding: 12px; border: 1px solid #808080; background: white; margin-bottom: 12px;">
+                    <h3 style="font-size: 11px; font-weight: bold; margin-bottom: 8px;">Planned Features</h3>
+                    <ul style="font-size: 10px; color: #666;">
+                        <li>• Live Spotify playlist sync</li>
+                        <li>• Team voting on tracks</li>
+                        <li>• Mood-based recommendations</li>
+                        <li>• Focus session playlists</li>
+                    </ul>
+                </div>
+
+                <div style="padding: 12px; border: 1px solid #808080; background: #f0f0f0;">
+                    <div style="font-size: 10px; margin-bottom: 4px;">
+                        <strong>Current Vibe:</strong> Lo-fi Hip Hop
+                    </div>
+                    <div style="font-size: 10px; color: #666;">
+                        Perfect for coding sessions
+                    </div>
+                </div>
+            </div>
+            <div class="resize-handle"></div>
+        </div>
+
+        <!-- PRD Builder Window -->
+        <div class="window" id="prdbuilder-window" style="left: 100px; top: 80px; width: 800px; height: 600px;">
+            <div class="window-title-bar">
+                <span>PRD Builder - Fountain Labs</span>
+                <div class="window-controls">
+                    <div class="window-control">_</div>
+                    <div class="window-control">□</div>
+                    <div class="window-control" onclick="closeWindow('prdbuilder')">×</div>
+                </div>
+            </div>
+            <div class="window-content" style="padding: 16px; height: calc(100% - 20px); overflow-y: auto;">
+                <div id="prd-builder-app">
+                    <!-- PRD Builder Header -->
+                    <div style="text-align: center; margin-bottom: 20px; padding: 10px; background: linear-gradient(135deg, #d4b5a0 0%, #b49680 100%); border: 1px inset #ccc;">
+                        <h2 style="margin: 0; font-size: 16px; color: #4a3728;">📄 PRD Builder</h2>
+                        <p style="margin: 5px 0 0 0; font-size: 10px; color: #666;">Create Professional Product Requirements Documents</p>
+                    </div>
+
+                    <!-- PRD Form -->
+                    <form id="prd-form">
+                        <!-- Basic Information -->
+                        <div style="margin-bottom: 20px; border: 1px solid #999; background: #f8f8f8; padding: 12px;">
+                            <h3 style="margin: 0 0 10px 0; font-size: 12px; color: #4a3728;">Basic Information</h3>
+                            
+                            <div style="margin-bottom: 10px;">
+                                <label style="font-size: 10px; font-weight: bold; display: block; margin-bottom: 2px;">Product Name *</label>
+                                <input type="text" id="product-name" required style="width: 100%; padding: 4px; border: 1px inset #ccc; font-size: 11px; font-family: monospace;">
+                            </div>
+                            
+                            <div>
+                                <label style="font-size: 10px; font-weight: bold; display: block; margin-bottom: 2px;">Project Lead</label>
+                                <input type="text" id="project-lead" style="width: 100%; padding: 4px; border: 1px inset #ccc; font-size: 11px; font-family: monospace;">
+                            </div>
+                        </div>
+
+                        <!-- Product Vision -->
+                        <div style="margin-bottom: 15px;">
+                            <label style="font-size: 10px; font-weight: bold; display: block; margin-bottom: 2px;">Product Vision</label>
+                            <div style="display: flex; gap: 5px; align-items: flex-start;">
+                                <textarea id="product-vision" rows="3" style="flex: 1; padding: 4px; border: 1px inset #ccc; font-size: 11px; font-family: monospace; resize: vertical;" placeholder="Describe the overall vision and purpose of this product..."></textarea>
+                                <button type="button" class="ai-enhance-btn retro-button" data-field="vision" style="font-size: 10px; padding: 4px 6px;">🤖</button>
+                            </div>
+                        </div>
+
+                        <!-- Target Audience -->
+                        <div style="margin-bottom: 15px;">
+                            <label style="font-size: 10px; font-weight: bold; display: block; margin-bottom: 2px;">Target Audience</label>
+                            <div style="display: flex; gap: 5px; align-items: flex-start;">
+                                <textarea id="target-audience" rows="3" style="flex: 1; padding: 4px; border: 1px inset #ccc; font-size: 11px; font-family: monospace; resize: vertical;" placeholder="Who is the primary audience for this product?"></textarea>
+                                <button type="button" class="ai-enhance-btn retro-button" data-field="audience" style="font-size: 10px; padding: 4px 6px;">🤖</button>
+                            </div>
+                        </div>
+
+                        <!-- Problem Statement -->
+                        <div style="margin-bottom: 15px;">
+                            <label style="font-size: 10px; font-weight: bold; display: block; margin-bottom: 2px;">Problem Statement</label>
+                            <div style="display: flex; gap: 5px; align-items: flex-start;">
+                                <textarea id="problem-statement" rows="3" style="flex: 1; padding: 4px; border: 1px inset #ccc; font-size: 11px; font-family: monospace; resize: vertical;" placeholder="What problem does this product solve?"></textarea>
+                                <button type="button" class="ai-enhance-btn retro-button" data-field="problem" style="font-size: 10px; padding: 4px 6px;">🤖</button>
+                            </div>
+                        </div>
+
+                        <!-- Key Features -->
+                        <div style="margin-bottom: 15px;">
+                            <label style="font-size: 10px; font-weight: bold; display: block; margin-bottom: 5px;">Key Features</label>
+                            <div id="features-container">
+                                <div class="feature-item" style="display: flex; gap: 5px; margin-bottom: 5px; align-items: center;">
+                                    <input type="text" class="feature-input" style="flex: 1; padding: 4px; border: 1px inset #ccc; font-size: 11px; font-family: monospace;" placeholder="Enter a key feature...">
+                                    <button type="button" class="remove-feature retro-button" style="font-size: 10px; padding: 4px 6px; background: #ff6b6b;">✗</button>
+                                </div>
+                            </div>
+                            <button type="button" id="add-feature" class="retro-button" style="font-size: 10px; margin-top: 5px;">+ Add Feature</button>
+                        </div>
+
+                        <!-- Success Metrics -->
+                        <div style="margin-bottom: 20px;">
+                            <label style="font-size: 10px; font-weight: bold; display: block; margin-bottom: 2px;">Success Metrics</label>
+                            <div style="display: flex; gap: 5px; align-items: flex-start;">
+                                <textarea id="success-metrics" rows="3" style="flex: 1; padding: 4px; border: 1px inset #ccc; font-size: 11px; font-family: monospace; resize: vertical;" placeholder="How will you measure success?"></textarea>
+                                <button type="button" class="ai-enhance-btn retro-button" data-field="metrics" style="font-size: 10px; padding: 4px 6px;">🤖</button>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #999;">
+                            <button type="button" id="generate-prd" class="retro-button" style="font-size: 11px; margin: 0 5px; background: #90EE90;">📄 Generate PRD</button>
+                            <button type="button" id="clear-form" class="retro-button" style="font-size: 11px; margin: 0 5px; background: #FFB6C1;">🗑️ Clear Form</button>
+                            <button type="button" id="save-prd" class="retro-button" style="font-size: 11px; margin: 0 5px; background: #87CEEB;">💾 Save PRD</button>
+                        </div>
+                    </form>
+
+                    <!-- PRD Preview (hidden initially) -->
+                    <div id="prd-preview" style="display: none;">
+                        <div style="text-align: center; margin-bottom: 15px; padding: 10px; background: #e8f5e8; border: 1px solid #90EE90;">
+                            <h3 style="margin: 0 0 5px 0; font-size: 14px; color: #2d5a2d;">📄 Generated PRD</h3>
+                            <div>
+                                <button type="button" id="edit-prd" class="retro-button" style="font-size: 10px; margin: 0 3px;">✏️ Edit</button>
+                                <button type="button" id="copy-prd" class="retro-button" style="font-size: 10px; margin: 0 3px;">📋 Copy</button>
+                                <button type="button" id="download-prd" class="retro-button" style="font-size: 10px; margin: 0 3px;">💾 Download</button>
+                            </div>
+                        </div>
+                        <div id="prd-content" style="background: white; border: 1px inset #ccc; padding: 15px; font-family: monospace; font-size: 10px; line-height: 1.4; white-space: pre-wrap;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="resize-handle"></div>
+        </div>
+
+        <!-- Taskbar -->
+        <div class="taskbar">
+            <button class="start-button" id="start-btn">
+                <img src="/Users/willjensen/Downloads/rocket_1f680.png" alt="🚀" class="icon-img">
+                Launch
+            </button>
+            
+            <button class="taskbar-button" id="projects-btn" onclick="toggleWindow('projects')">
+                <img src="/Users/willjensen/Downloads/laptop_1f4bb.png" alt="💻" class="icon-img">
+                Projects
+            </button>
+            <button class="taskbar-button" id="team-btn" onclick="toggleWindow('team')">
+                <img src="/Users/willjensen/Downloads/winking-face_1f609.png" alt="😉" class="icon-img">
+                Team
+            </button>
+            <button class="taskbar-button" id="playlist-btn" onclick="toggleWindow('playlist')">
+                <img src="/Users/willjensen/Downloads/musical-note_1f3b5.png" alt="🎵" class="icon-img">
+                Playlist
+            </button>
+            <button class="taskbar-button" id="prdbuilder-btn" onclick="toggleWindow('prdbuilder')">
+                <img src="/Users/willjensen/Downloads/bookmark-tabs_1f4d1.png" alt="📑" class="icon-img">
+                PRD Builder
+            </button>
+            <div class="taskbar-time" id="current-time"></div>
+        </div>
+
+        <!-- Start Menu -->
+        <div class="start-menu" id="start-menu">
+            <div class="start-menu-header">Fountain Labs OS</div>
+            
+            <div class="start-menu-item has-submenu" data-submenu="applications">
+                <img src="/Users/willjensen/Downloads/rocket_1f680.png" alt="🚀" class="icon-img">
+                Applications
+                <div class="submenu" id="applications-submenu">
+                    <div class="submenu-item" onclick="launchApplication('prdbuilder')">
+                        <img src="/Users/willjensen/Downloads/bookmark-tabs_1f4d1.png" alt="📑" class="icon-img">
+                        PRD Builder
+                    </div>
+                    <div class="submenu-item" style="color: #999; cursor: not-allowed;">
+                        <img src="/Users/willjensen/Downloads/robot_1f916.png" alt="🤖" class="icon-img" style="opacity: 0.5;">
+                        More apps coming soon...
+                    </div>
+                </div>
+            </div>
+            
+            <div class="start-menu-item has-submenu" data-submenu="documents">
+                <span>📁</span>
+                Documents
+                <div class="submenu" id="documents-submenu">
+                    <div class="submenu-item" style="color: #999; cursor: not-allowed;">
+                        <span>📄</span>
+                        Product_Strategy_2024.prd
+                    </div>
+                    <div class="submenu-item" style="color: #999; cursor: not-allowed;">
+                        <span>📄</span>
+                        AI_Integration_Plan.md
+                    </div>
+                    <div class="submenu-item" style="color: #999; cursor: not-allowed;">
+                        <span>📄</span>
+                        Team_Roadmap_Q1.txt
+                    </div>
+                    <div class="submenu-item" style="color: #999; cursor: not-allowed;">
+                        <span>📊</span>
+                        Lab_Metrics_Dashboard.xlsx
+                    </div>
+                </div>
+            </div>
+            
+            <div class="start-menu-item" onclick="openSettings()">
+                <span>⚙️</span>
+                Settings
+            </div>
+            
+            <div class="start-menu-item" onclick="openHelp()">
+                <span>❓</span>
+                Help
+            </div>
+            
+            <div style="border-top: 2px inset #999; margin: 4px 0;"></div>
+            
+            <div class="start-menu-item" onclick="showAbout()">
+                <span>ℹ️</span>
+                About Fountain Labs OS
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const activeWindows = {
+            projects: false,
+            team: false,
+            playlist: false,
+            prdbuilder: false
+        };
+
+        function toggleWindow(windowName) {
+            const window = document.getElementById(windowName + '-window');
+            const button = document.getElementById(windowName + '-btn');
+            
+            activeWindows[windowName] = !activeWindows[windowName];
+            
+            if (activeWindows[windowName]) {
+                window.classList.add('visible');
+                button.classList.add('active');
+            } else {
+                window.classList.remove('visible');
+                button.classList.remove('active');
+            }
+        }
+
+        function closeWindow(windowName) {
+            const window = document.getElementById(windowName + '-window');
+            const button = document.getElementById(windowName + '-btn');
+            
+            activeWindows[windowName] = false;
+            window.classList.remove('visible');
+            button.classList.remove('active');
+        }
+
+        // Universal application launcher
+        function launchApplication(appName) {
+            switch(appName) {
+                case 'prdbuilder':
+                    openPRDBuilder();
+                    break;
+                // Add more applications here as they're built
+                // case 'calculator':
+                //     openCalculator();
+                //     break;
+                // case 'texteditor':
+                //     openTextEditor();
+                //     break;
+                default:
+                    console.log(`Application '${appName}' not found`);
+            }
+        }
+
+        function openPRDBuilder() {
+            // Open PRD Builder as a window within the OS
+            toggleWindow('prdbuilder');
+            
+            // Initialize PRD Builder if not already done
+            if (!window.prdBuilderInitialized) {
+                initializePRDBuilder();
+                window.prdBuilderInitialized = true;
+            }
+        }
+
+        // PRD Builder Functionality
+        function initializePRDBuilder() {
+            // Add Feature functionality
+            document.getElementById('add-feature').addEventListener('click', addFeature);
+            
+            // Remove feature functionality (using event delegation)
+            document.getElementById('features-container').addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-feature')) {
+                    removeFeature(e.target);
+                }
+            });
+
+            // Generate PRD
+            document.getElementById('generate-prd').addEventListener('click', generatePRD);
+            
+            // Clear form
+            document.getElementById('clear-form').addEventListener('click', clearForm);
+            
+            // Edit PRD
+            document.getElementById('edit-prd').addEventListener('click', editPRD);
+            
+            // Copy PRD
+            document.getElementById('copy-prd').addEventListener('click', copyPRD);
+            
+            // Download PRD
+            document.getElementById('download-prd').addEventListener('click', downloadPRD);
+            
+            // AI Enhancement buttons
+            document.querySelectorAll('.ai-enhance-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    enhanceWithAI(this.dataset.field);
+                });
+            });
+        }
+
+        function addFeature() {
+            const container = document.getElementById('features-container');
+            const featureDiv = document.createElement('div');
+            featureDiv.className = 'feature-item';
+            featureDiv.style.cssText = 'display: flex; gap: 5px; margin-bottom: 5px; align-items: center;';
+            featureDiv.innerHTML = `
+                <input type="text" class="feature-input" style="flex: 1; padding: 4px; border: 1px inset #ccc; font-size: 11px; font-family: monospace;" placeholder="Enter a key feature...">
+                <button type="button" class="remove-feature retro-button" style="font-size: 10px; padding: 4px 6px; background: #ff6b6b;">✗</button>
+            `;
+            container.appendChild(featureDiv);
+        }
+
+        function removeFeature(button) {
+            const container = document.getElementById('features-container');
+            if (container.children.length > 1) {
+                button.parentElement.remove();
+            }
+        }
+
+        function generatePRD() {
+            const productName = document.getElementById('product-name').value.trim();
+            if (!productName) {
+                alert('Please enter a product name.');
+                return;
+            }
+
+            const prdData = {
+                productName: productName,
+                projectLead: document.getElementById('project-lead').value.trim() || 'TBD',
+                productVision: document.getElementById('product-vision').value.trim() || 'To be defined',
+                targetAudience: document.getElementById('target-audience').value.trim() || 'To be defined',
+                problemStatement: document.getElementById('problem-statement').value.trim() || 'To be defined',
+                successMetrics: document.getElementById('success-metrics').value.trim() || 'To be defined',
+                features: Array.from(document.querySelectorAll('.feature-input')).map(input => input.value.trim()).filter(f => f)
+            };
+
+            const prdContent = createPRDTemplate(prdData);
+            
+            document.getElementById('prd-content').textContent = prdContent;
+            document.getElementById('prd-form').style.display = 'none';
+            document.getElementById('prd-preview').style.display = 'block';
+        }
+
+        function createPRDTemplate(data) {
+            const date = new Date().toLocaleDateString();
+            const features = data.features.length > 0 ? data.features.map(f => `• ${f}`).join('\n') : '• To be defined';
+            
+            return `
+PRODUCT REQUIREMENTS DOCUMENT
+════════════════════════════════════════════════════════════════════════
+
+Product Name: ${data.productName}
+Project Lead: ${data.projectLead}
+Date Created: ${date}
+Version: 1.0
+
+EXECUTIVE SUMMARY
+════════════════════════════════════════════════════════════════════════
+
+${data.productVision}
+
+PROBLEM STATEMENT
+════════════════════════════════════════════════════════════════════════
+
+${data.problemStatement}
+
+TARGET AUDIENCE
+════════════════════════════════════════════════════════════════════════
+
+${data.targetAudience}
+
+KEY FEATURES
+════════════════════════════════════════════════════════════════════════
+
+${features}
+
+SUCCESS METRICS
+════════════════════════════════════════════════════════════════════════
+
+${data.successMetrics}
+
+TECHNICAL REQUIREMENTS
+════════════════════════════════════════════════════════════════════════
+
+• Platform compatibility requirements
+• Performance benchmarks
+• Security and compliance standards
+• Integration requirements
+• Scalability considerations
+
+TIMELINE
+════════════════════════════════════════════════════════════════════════
+
+• Phase 1: Requirements gathering and design (TBD)
+• Phase 2: Development and testing (TBD)
+• Phase 3: Launch and monitoring (TBD)
+
+DEPENDENCIES
+════════════════════════════════════════════════════════════════════════
+
+• Technical dependencies
+• Resource dependencies
+• External partner dependencies
+
+RISKS AND MITIGATION
+════════════════════════════════════════════════════════════════════════
+
+• Technical risks and mitigation strategies
+• Market risks and contingency plans
+• Resource risks and backup plans
+
+APPENDIX
+════════════════════════════════════════════════════════════════════════
+
+• Additional documentation
+• Research and references
+• Stakeholder feedback
+            `.trim();
+        }
+
+        function clearForm() {
+            if (confirm('Are you sure you want to clear all form data?')) {
+                document.getElementById('prd-form').reset();
+                // Reset features to just one empty field
+                const container = document.getElementById('features-container');
+                container.innerHTML = `
+                    <div class="feature-item" style="display: flex; gap: 5px; margin-bottom: 5px; align-items: center;">
+                        <input type="text" class="feature-input" style="flex: 1; padding: 4px; border: 1px inset #ccc; font-size: 11px; font-family: monospace;" placeholder="Enter a key feature...">
+                        <button type="button" class="remove-feature retro-button" style="font-size: 10px; padding: 4px 6px; background: #ff6b6b;">✗</button>
+                    </div>
+                `;
+            }
+        }
+
+        function editPRD() {
+            document.getElementById('prd-preview').style.display = 'none';
+            document.getElementById('prd-form').style.display = 'block';
+        }
+
+        function copyPRD() {
+            const content = document.getElementById('prd-content').textContent;
+            navigator.clipboard.writeText(content).then(() => {
+                const button = document.getElementById('copy-prd');
+                const originalText = button.textContent;
+                button.textContent = '✅ Copied!';
+                button.style.background = '#90EE90';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '';
+                }, 2000);
+            }).catch(() => {
+                alert('Failed to copy to clipboard. Please select and copy manually.');
+            });
+        }
+
+        function downloadPRD() {
+            const content = document.getElementById('prd-content').textContent;
+            const productName = document.getElementById('product-name').value.trim() || 'PRD';
+            const filename = `${productName.replace(/[^a-z0-9]/gi, '_')}_PRD.txt`;
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function enhanceWithAI(field) {
+            alert(`AI Enhancement for ${field} field is not configured. This would typically connect to OpenAI or Claude API to improve the text.`);
+        }
+
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = 
+                now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('current-date').textContent = 
+                now.toLocaleDateString();
+        }
+
+        // Drag functionality
+        let draggedWindow = null;
+        let draggedIcon = null;
+        let dragOffset = { x: 0, y: 0 };
+        let zIndexCounter = 100;
+
+        // Resize functionality
+        let resizedWindow = null;
+        let resizeStartSize = { width: 0, height: 0 };
+        let resizeStartMouse = { x: 0, y: 0 };
+
+        function initializeDragging() {
+            const windows = document.querySelectorAll('.window');
+            const icons = document.querySelectorAll('.desktop-icon');
+            
+            // Window dragging
+            windows.forEach(window => {
+                const titleBar = window.querySelector('.window-title-bar');
+                const resizeHandle = window.querySelector('.resize-handle');
+                
+                // Drag functionality
+                titleBar.addEventListener('mousedown', (e) => {
+                    // Don't drag if clicking on window controls
+                    if (e.target.classList.contains('window-control')) {
+                        return;
+                    }
+                    
+                    draggedWindow = window;
+                    window.classList.add('dragging');
+                    window.style.zIndex = ++zIndexCounter;
+                    
+                    const rect = window.getBoundingClientRect();
+                    dragOffset.x = e.clientX - rect.left;
+                    dragOffset.y = e.clientY - rect.top;
+                    
+                    e.preventDefault();
+                });
+
+                // Resize functionality
+                resizeHandle.addEventListener('mousedown', (e) => {
+                    resizedWindow = window;
+                    window.classList.add('resizing');
+                    window.style.zIndex = ++zIndexCounter;
+                    
+                    const rect = window.getBoundingClientRect();
+                    resizeStartSize.width = rect.width;
+                    resizeStartSize.height = rect.height;
+                    resizeStartMouse.x = e.clientX;
+                    resizeStartMouse.y = e.clientY;
+                    
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+            });
+
+            // Icon dragging and double-click handling
+            icons.forEach(icon => {
+                let clickCount = 0;
+                let clickTimer = null;
+                
+                // Double-click handler
+                icon.addEventListener('dblclick', (e) => {
+                    const appName = icon.getAttribute('data-app');
+                    if (appName) {
+                        launchApplication(appName);
+                    }
+                    e.preventDefault();
+                });
+                
+                // Drag handler
+                icon.addEventListener('mousedown', (e) => {
+                    // Prevent default click behavior when starting drag
+                    const startX = e.clientX;
+                    const startY = e.clientY;
+                    const rect = icon.getBoundingClientRect();
+                    
+                    draggedIcon = icon;
+                    icon.classList.add('dragging');
+                    
+                    dragOffset.x = e.clientX - rect.left;
+                    dragOffset.y = e.clientY - rect.top;
+                    
+                    // Add a small delay to distinguish between click and drag
+                    let isDragging = false;
+                    const moveThreshold = 5;
+                    
+                    const checkForDrag = (moveEvent) => {
+                        const deltaX = Math.abs(moveEvent.clientX - startX);
+                        const deltaY = Math.abs(moveEvent.clientY - startY);
+                        
+                        if (deltaX > moveThreshold || deltaY > moveThreshold) {
+                            isDragging = true;
+                            document.removeEventListener('mousemove', checkForDrag);
+                        }
+                    };
+                    
+                    document.addEventListener('mousemove', checkForDrag);
+                    
+                    const cleanup = () => {
+                        document.removeEventListener('mousemove', checkForDrag);
+                        icon.classList.remove('dragging');
+                        draggedIcon = null;
+                    };
+                    
+                    const handleMouseUp = () => {
+                        cleanup();
+                        document.removeEventListener('mouseup', handleMouseUp);
+                    };
+                    
+                    document.addEventListener('mouseup', handleMouseUp);
+                    
+                    e.preventDefault();
+                });
+
+                // Single click for selection (optional visual feedback)
+                icon.addEventListener('click', (e) => {
+                    // Add selected state visual feedback
+                    icons.forEach(i => i.classList.remove('selected'));
+                    icon.classList.add('selected');
+                    e.preventDefault();
+                });
+            });
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            // Handle window dragging
+            if (draggedWindow) {
+                const desktop = document.querySelector('.desktop');
+                const desktopRect = desktop.getBoundingClientRect();
+                const windowRect = draggedWindow.getBoundingClientRect();
+                
+                let newX = e.clientX - dragOffset.x;
+                let newY = e.clientY - dragOffset.y;
+                
+                // Constrain to desktop bounds
+                const minX = 0;
+                const minY = 0;
+                const maxX = desktopRect.width - windowRect.width;
+                const maxY = desktopRect.height - windowRect.height - 40; // Account for taskbar
+                
+                newX = Math.max(minX, Math.min(maxX, newX));
+                newY = Math.max(minY, Math.min(maxY, newY));
+                
+                draggedWindow.style.left = newX + 'px';
+                draggedWindow.style.top = newY + 'px';
+            }
+
+            // Handle icon dragging
+            if (draggedIcon) {
+                const desktop = document.querySelector('.desktop');
+                const desktopRect = desktop.getBoundingClientRect();
+                
+                let newX = e.clientX - dragOffset.x;
+                let newY = e.clientY - dragOffset.y;
+                
+                // Constrain to desktop bounds
+                const iconWidth = 64;
+                const iconHeight = 80; // Account for icon and label height
+                const minX = 0;
+                const minY = 0;
+                const maxX = desktopRect.width - iconWidth;
+                const maxY = desktopRect.height - iconHeight - 40; // Account for taskbar
+                
+                newX = Math.max(minX, Math.min(maxX, newX));
+                newY = Math.max(minY, Math.min(maxY, newY));
+                
+                draggedIcon.style.left = newX + 'px';
+                draggedIcon.style.top = newY + 'px';
+            }
+
+            // Handle window resizing
+            if (resizedWindow) {
+                const desktop = document.querySelector('.desktop');
+                const desktopRect = desktop.getBoundingClientRect();
+                const windowRect = resizedWindow.getBoundingClientRect();
+                
+                const deltaX = e.clientX - resizeStartMouse.x;
+                const deltaY = e.clientY - resizeStartMouse.y;
+                
+                let newWidth = resizeStartSize.width + deltaX;
+                let newHeight = resizeStartSize.height + deltaY;
+                
+                // Minimum and maximum constraints
+                const minWidth = 200;
+                const minHeight = 150;
+                const maxWidth = desktopRect.width - windowRect.left;
+                const maxHeight = desktopRect.height - windowRect.top - 40; // Account for taskbar
+                
+                newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+                newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight));
+                
+                resizedWindow.style.width = newWidth + 'px';
+                resizedWindow.style.height = newHeight + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (draggedWindow) {
+                draggedWindow.classList.remove('dragging');
+                draggedWindow = null;
+            }
+            if (draggedIcon) {
+                draggedIcon.classList.remove('dragging');
+                draggedIcon = null;
+            }
+            if (resizedWindow) {
+                resizedWindow.classList.remove('resizing');
+                resizedWindow = null;
+            }
+        });
+
+        // Click to bring window to front
+        document.addEventListener('click', (e) => {
+            const window = e.target.closest('.window');
+            if (window && window.classList.contains('visible')) {
+                window.style.zIndex = ++zIndexCounter;
+            }
+        });
+
+        // Update time every second
+        setInterval(updateTime, 1000);
+        updateTime();
+        
+        // Initialize dragging when page loads
+        initializeDragging();
+        
+        // Initialize Start Menu
+        initializeStartMenu();
+
+        // Start Menu functionality
+        function initializeStartMenu() {
+            const startBtn = document.getElementById('start-btn');
+            const startMenu = document.getElementById('start-menu');
+            
+            // Toggle start menu
+            startBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleStartMenu();
+            });
+            
+            // Handle submenu hover
+            const menuItems = document.querySelectorAll('.start-menu-item.has-submenu');
+            menuItems.forEach(item => {
+                const submenuId = item.getAttribute('data-submenu') + '-submenu';
+                const submenu = document.getElementById(submenuId);
+                
+                item.addEventListener('mouseenter', () => {
+                    // Hide all other submenus
+                    document.querySelectorAll('.submenu').forEach(sm => sm.classList.remove('visible'));
+                    // Show this submenu
+                    if (submenu) {
+                        submenu.classList.add('visible');
+                    }
+                });
+                
+                item.addEventListener('mouseleave', (e) => {
+                    // Only hide if not moving to submenu
+                    setTimeout(() => {
+                        if (!submenu.matches(':hover') && !item.matches(':hover')) {
+                            submenu.classList.remove('visible');
+                        }
+                    }, 100);
+                });
+            });
+            
+            // Keep submenu open when hovering over it
+            document.querySelectorAll('.submenu').forEach(submenu => {
+                submenu.addEventListener('mouseleave', () => {
+                    setTimeout(() => {
+                        submenu.classList.remove('visible');
+                    }, 100);
+                });
+            });
+            
+            // Close start menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!startMenu.contains(e.target) && !startBtn.contains(e.target)) {
+                    closeStartMenu();
+                }
+            });
+        }
+
+        function toggleStartMenu() {
+            const startMenu = document.getElementById('start-menu');
+            const startBtn = document.getElementById('start-btn');
+            
+            if (startMenu.classList.contains('visible')) {
+                closeStartMenu();
+            } else {
+                startMenu.classList.add('visible');
+                startBtn.classList.add('active');
+            }
+        }
+
+        function closeStartMenu() {
+            const startMenu = document.getElementById('start-menu');
+            const startBtn = document.getElementById('start-btn');
+            
+            startMenu.classList.remove('visible');
+            startBtn.classList.remove('active');
+            
+            // Hide all submenus
+            document.querySelectorAll('.submenu').forEach(submenu => {
+                submenu.classList.remove('visible');
+            });
+        }
+
+        function openSettings() {
+            closeStartMenu();
+            alert('Settings window coming soon! This will contain session preferences, display options, and system configuration.');
+        }
+
+        function openHelp() {
+            closeStartMenu();
+            alert('Help documentation coming soon! This will include user guides, keyboard shortcuts, and feature explanations.');
+        }
+
+        function showAbout() {
+            closeStartMenu();
+            alert('Fountain Labs OS v1.0\\n\\nA vintage-inspired operating system interface for team productivity.\\n\\nBuilt with love by the Fountain Labs team.');
+        }
+    </script>
+</body>
+</html>
