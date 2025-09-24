@@ -8,7 +8,6 @@ import { TeamWindow } from '@/components/TeamWindow';
 import { PlaylistWindow } from '@/components/PlaylistWindow';
 import { DesktopIcon } from '@/components/DesktopIcon';
 import { BrowserWindow } from '@/components/BrowserWindow';
-import { Bot } from 'lucide-react';
 
 export default function Home() {
   const [activeWindows, setActiveWindows] = useState({

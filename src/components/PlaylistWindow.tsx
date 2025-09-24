@@ -18,6 +18,7 @@ export function PlaylistWindow() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [tracks, setTracks] = useState<Track[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [currentTrack, setCurrentTrack] = useState<any>(null);
@@ -25,10 +26,11 @@ export function PlaylistWindow() {
   const [volume, setVolume] = useState(50);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isLoading, setIsLoading] = useState(false);
   const [playerReady, setPlayerReady] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [devices, setDevices] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [devices, setDevices] = useState<Record<string, unknown>[]>([]);
   const [showPlaylistDropdown, setShowPlaylistDropdown] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: 400, height: 180 });
   const [isResizing, setIsResizing] = useState(false);
@@ -54,9 +56,10 @@ export function PlaylistWindow() {
   }, []);
 
   useEffect(() => {
-    // Check for access token in URL params (from OAuth callback)
-    const urlParams = new URLSearchParams(window.location.search);
-    const accessToken = urlParams.get('access_token');
+    // Check for access token in URL fragment (from OAuth callback)
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    const accessToken = params.get('access_token');
 
     if (accessToken) {
       console.log('Access token found, setting up Spotify...');
@@ -170,6 +173,7 @@ export function PlaylistWindow() {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleTrackSelect = async (track: Track) => {
     if (!playerReady) {
       console.log('Player not ready yet');
@@ -185,6 +189,7 @@ export function PlaylistWindow() {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handlePlaylistPlay = async (playlist: Playlist) => {
     if (!playerReady) {
       console.log('Player not ready yet');
@@ -262,6 +267,7 @@ export function PlaylistWindow() {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleDeviceSelect = async (deviceId: string) => {
     try {
       await spotify.transferPlayback(deviceId);
