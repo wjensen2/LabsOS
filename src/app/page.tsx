@@ -84,11 +84,12 @@ export default function Home() {
       {/* Desktop Icons */}
       <DesktopIcon
         icon={
-          <div className="pixel-bot-icon">
-            <div className="pixel-bot-head"></div>
-            <div className="pixel-bot-body"></div>
-            <div className="pixel-bot-arms"></div>
-          </div>
+          <img
+            src="/astronaut.png"
+            alt="Nora AI"
+            className="w-8 h-8"
+            style={{ imageRendering: 'pixelated' }}
+          />
         }
         label="NORA AI"
         x={windowSize.width - 120}

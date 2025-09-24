@@ -1,6 +1,7 @@
 'use client';
 
-import { Monitor, Users, Music, Settings, Power, Folder, HelpCircle, User, Bot } from 'lucide-react';
+import { Users, Settings, Power, Folder, HelpCircle, User, Bot, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
 
 interface TaskbarProps {
@@ -15,6 +16,8 @@ interface TaskbarProps {
 
 export function Taskbar({ activeWindows, onToggleWindow }: TaskbarProps) {
   const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
+  const [showApplicationsSubmenu, setShowApplicationsSubmenu] = useState(false);
+  const [showDocumentsSubmenu, setShowDocumentsSubmenu] = useState(false);
   const startMenuRef = useRef<HTMLDivElement>(null);
 
   // Close start menu when clicking outside
@@ -37,6 +40,7 @@ export function Taskbar({ activeWindows, onToggleWindow }: TaskbarProps) {
           className={`start-button ${isStartMenuOpen ? 'active' : ''}`}
           onClick={() => setIsStartMenuOpen(!isStartMenuOpen)}
         >
+          <Image src="/rocket.png" alt="" width={16} height={16} className="mr-1" />
           <span className="font-bold">Start</span>
         </button>
 
@@ -45,63 +49,117 @@ export function Taskbar({ activeWindows, onToggleWindow }: TaskbarProps) {
             <div className="start-menu-header">
               <div className="start-menu-user">
                 <User size={16} />
-                <span>CHRO Summit User</span>
+                <span>Fountain Labs OS</span>
               </div>
             </div>
 
             <div className="start-menu-separator"></div>
 
             <div className="start-menu-section">
-              <div className="start-menu-title">Programs</div>
-              <button
-                className="start-menu-item"
-                onClick={() => {
-                  onToggleWindow('projects');
-                  setIsStartMenuOpen(false);
-                }}
+              {/* Applications submenu */}
+              <div
+                className="start-menu-item relative"
+                onMouseEnter={() => setShowApplicationsSubmenu(true)}
+                onMouseLeave={() => setShowApplicationsSubmenu(false)}
               >
-                <Monitor size={16} />
-                <span>Projects</span>
-              </button>
-              <button
-                className="start-menu-item"
-                onClick={() => {
-                  onToggleWindow('team');
-                  setIsStartMenuOpen(false);
-                }}
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2">
+                    <Image src="/rocket.png" alt="" width={16} height={16} />
+                    <span>Applications</span>
+                  </div>
+                  <ChevronRight size={12} />
+                </div>
+
+                {showApplicationsSubmenu && (
+                  <div className="absolute left-full top-0 ml-1 w-48 bg-gray-200 border-2 border-gray-400 shadow-md z-20">
+                    <button
+                      className="start-menu-item w-full"
+                      onClick={() => {
+                        onToggleWindow('projects');
+                        setIsStartMenuOpen(false);
+                        setShowApplicationsSubmenu(false);
+                      }}
+                    >
+                      <Image src="/projects.png" alt="" width={16} height={16} />
+                      <span>Projects</span>
+                    </button>
+                    <button
+                      className="start-menu-item w-full"
+                      onClick={() => {
+                        onToggleWindow('team');
+                        setIsStartMenuOpen(false);
+                        setShowApplicationsSubmenu(false);
+                      }}
+                    >
+                      <Image src="/team.png" alt="" width={16} height={16} />
+                      <span>Team</span>
+                    </button>
+                    <button
+                      className="start-menu-item w-full"
+                      onClick={() => {
+                        onToggleWindow('playlist');
+                        setIsStartMenuOpen(false);
+                        setShowApplicationsSubmenu(false);
+                      }}
+                    >
+                      <Image src="/musical-score.png" alt="" width={16} height={16} />
+                      <span>Playlist</span>
+                    </button>
+                    <button
+                      className="start-menu-item w-full"
+                      onClick={() => {
+                        onToggleWindow('nora');
+                        setIsStartMenuOpen(false);
+                        setShowApplicationsSubmenu(false);
+                      }}
+                    >
+                      <Image src="/astronaut.png" alt="" width={16} height={16} />
+                      <span>Nora AI</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Documents submenu */}
+              <div
+                className="start-menu-item relative"
+                onMouseEnter={() => setShowDocumentsSubmenu(true)}
+                onMouseLeave={() => setShowDocumentsSubmenu(false)}
               >
-                <Users size={16} />
-                <span>Team</span>
-              </button>
-              <button
-                className="start-menu-item"
-                onClick={() => {
-                  onToggleWindow('playlist');
-                  setIsStartMenuOpen(false);
-                }}
-              >
-                <Music size={16} />
-                <span>Playlist</span>
-              </button>
-              <button
-                className="start-menu-item"
-                onClick={() => {
-                  onToggleWindow('nora');
-                  setIsStartMenuOpen(false);
-                }}
-              >
-                <Bot size={16} />
-                <span>Nora AI</span>
-              </button>
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2">
+                    <Folder size={16} />
+                    <span>Documents</span>
+                  </div>
+                  <ChevronRight size={12} />
+                </div>
+
+                {showDocumentsSubmenu && (
+                  <div className="absolute left-full top-0 ml-1 w-48 bg-gray-200 border-2 border-gray-400 shadow-md z-20">
+                    <div className="start-menu-item w-full text-gray-500">
+                      <Folder size={16} />
+                      <span>Product_Strategy_2024.pdf</span>
+                    </div>
+                    <div className="start-menu-item w-full text-gray-500">
+                      <Folder size={16} />
+                      <span>AI_Integration_Plan.md</span>
+                    </div>
+                    <div className="start-menu-item w-full text-gray-500">
+                      <Folder size={16} />
+                      <span>Team_Roadmap_Q1.txt</span>
+                    </div>
+                    <div className="start-menu-item w-full text-gray-500">
+                      <Folder size={16} />
+                      <span>Lab_Metrics_Dashboard.xlsx</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="start-menu-separator"></div>
 
             <div className="start-menu-section">
-              <button className="start-menu-item">
-                <Folder size={16} />
-                <span>Documents</span>
-              </button>
               <button className="start-menu-item">
                 <Settings size={16} />
                 <span>Settings</span>
@@ -115,8 +173,8 @@ export function Taskbar({ activeWindows, onToggleWindow }: TaskbarProps) {
             <div className="start-menu-separator"></div>
 
             <button className="start-menu-item">
-              <Power size={16} />
-              <span>Shut Down...</span>
+              <HelpCircle size={16} />
+              <span>About Fountain Labs OS</span>
             </button>
           </div>
         )}
@@ -127,7 +185,7 @@ export function Taskbar({ activeWindows, onToggleWindow }: TaskbarProps) {
           className={`taskbar-button flex items-center gap-2 ${activeWindows.projects ? 'active' : ''}`}
           onClick={() => onToggleWindow('projects')}
         >
-          <Monitor size={12} />
+          <Image src="/projects.png" alt="" width={12} height={12} />
           Projects
         </button>
 
@@ -135,7 +193,7 @@ export function Taskbar({ activeWindows, onToggleWindow }: TaskbarProps) {
           className={`taskbar-button flex items-center gap-2 ${activeWindows.team ? 'active' : ''}`}
           onClick={() => onToggleWindow('team')}
         >
-          <Users size={12} />
+          <Image src="/team.png" alt="" width={12} height={12} />
           Team
         </button>
 
@@ -143,7 +201,7 @@ export function Taskbar({ activeWindows, onToggleWindow }: TaskbarProps) {
           className={`taskbar-button flex items-center gap-2 ${activeWindows.playlist ? 'active' : ''}`}
           onClick={() => onToggleWindow('playlist')}
         >
-          <Music size={12} />
+          <Image src="/musical-score.png" alt="" width={12} height={12} />
           Playlist
         </button>
 
@@ -151,7 +209,7 @@ export function Taskbar({ activeWindows, onToggleWindow }: TaskbarProps) {
           className={`taskbar-button flex items-center gap-2 ${activeWindows.nora ? 'active' : ''}`}
           onClick={() => onToggleWindow('nora')}
         >
-          <Bot size={12} />
+          <Image src="/astronaut.png" alt="" width={12} height={12} />
           Nora AI
         </button>
       </div>
