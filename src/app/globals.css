@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 :root {
   --retro-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -12,19 +11,72 @@
   --text-color: #000000;
 }
 
-body {
-  background: var(--retro-bg);
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background-attachment: fixed !important;
   color: var(--text-color);
   font-family: 'MS Sans Serif', sans-serif;
   margin: 0;
   padding: 0;
   overflow: hidden;
+  height: 100vh;
+  width: 100vw;
 }
 
 .pixel-font {
   font-family: 'Press Start 2P', monospace;
   font-size: 8px;
   line-height: 1.4;
+}
+
+.ascii-title {
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1.0;
+  letter-spacing: 1px;
+  color: #CD853F !important;
+  text-shadow: 1px 1px 0px rgba(0,0,0,0.5);
+  white-space: pre;
+}
+
+.desktop {
+  position: relative !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background-attachment: fixed !important;
+  background-image:
+    radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(255,255,255,0.05) 0%, transparent 50%) !important;
+}
+
+.desktop-title {
+  position: absolute !important;
+  top: 16px !important;
+  left: 16px !important;
+  color: white !important;
+}
+
+.desktop-version {
+  color: white !important;
+  font-size: 9px !important;
+  margin-top: 8px !important;
+  opacity: 0.75 !important;
+}
+
+.desktop-date {
+  color: white !important;
+  font-size: 9px !important;
+  margin-top: 4px !important;
+  opacity: 0.75 !important;
 }
 
 .retro-button {
@@ -107,4 +159,297 @@ body {
   background: #0080ff;
   height: 100%;
   transition: width 0.3s ease;
+}
+
+/* Start Button */
+.start-button {
+  background: var(--button-bg);
+  border: 1px outset var(--window-border);
+  padding: 4px 16px;
+  font-size: 11px;
+  cursor: pointer;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  color: black;
+  font-weight: bold;
+}
+
+.start-button:hover {
+  background: #d4d4d4;
+}
+
+.start-button.active {
+  border: 1px inset var(--window-border);
+  background: #a0a0a0;
+}
+
+/* Start Menu */
+.start-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  width: 200px;
+  background: var(--window-bg);
+  border: 2px outset var(--window-border);
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  font-size: 11px;
+  z-index: 1000;
+}
+
+.start-menu-header {
+  background: linear-gradient(90deg, #0080ff 0%, #004080 100%);
+  color: white;
+  padding: 8px;
+  font-weight: bold;
+}
+
+.start-menu-user {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.start-menu-separator {
+  height: 1px;
+  background: var(--window-border-dark);
+  margin: 2px 0;
+}
+
+.start-menu-section {
+  padding: 2px 0;
+}
+
+.start-menu-title {
+  padding: 4px 8px;
+  font-weight: bold;
+  color: #666;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.start-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  text-align: left;
+  color: black;
+}
+
+.start-menu-item:hover {
+  background: #0080ff;
+  color: white;
+}
+
+/* Desktop Icons */
+.desktop-icon {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  user-select: none;
+  width: 80px;
+  text-align: center;
+}
+
+.desktop-icon:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.desktop-icon:active {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.desktop-icon.dragging {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+  z-index: 1000;
+}
+
+.desktop-icon-image {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(45deg, #e0e0e0 25%, #f0f0f0 25%, #f0f0f0 50%, #e0e0e0 50%, #e0e0e0 75%, #f0f0f0 75%);
+  background-size: 4px 4px;
+  border: 2px solid #808080;
+  border-top-color: #dfdfdf;
+  border-left-color: #dfdfdf;
+  border-bottom-color: #404040;
+  border-right-color: #404040;
+  margin-bottom: 4px;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  position: relative;
+  overflow: hidden;
+}
+
+.desktop-icon-image::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg,
+    rgba(255,255,255,0.3) 0%,
+    rgba(255,255,255,0.1) 30%,
+    transparent 70%,
+    rgba(0,0,0,0.1) 100%);
+  pointer-events: none;
+}
+
+.desktop-icon-image svg {
+  filter: contrast(1.2) saturate(1.3);
+  image-rendering: pixelated;
+}
+
+.desktop-icon-label {
+  color: white;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.8);
+  line-height: 1.3;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  image-rendering: pixelated;
+}
+
+/* Pixel Art Bot Icon */
+.pixel-bot-icon {
+  width: 32px;
+  height: 32px;
+  position: relative;
+  image-rendering: pixelated;
+}
+
+.pixel-bot-head {
+  width: 16px;
+  height: 12px;
+  background: #4a90e2;
+  position: absolute;
+  top: 2px;
+  left: 8px;
+  border: 2px solid #2c5282;
+  border-radius: 2px;
+}
+
+.pixel-bot-head::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 3px;
+  height: 3px;
+  background: #ffffff;
+  border-radius: 1px;
+}
+
+.pixel-bot-head::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 3px;
+  height: 3px;
+  background: #ffffff;
+  border-radius: 1px;
+}
+
+.pixel-bot-body {
+  width: 12px;
+  height: 16px;
+  background: #6bb6ff;
+  position: absolute;
+  top: 12px;
+  left: 10px;
+  border: 2px solid #2c5282;
+  border-radius: 2px;
+}
+
+.pixel-bot-body::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 2px;
+  background: #2c5282;
+  border-radius: 1px;
+}
+
+.pixel-bot-arms {
+  position: absolute;
+  top: 16px;
+  left: 2px;
+  width: 4px;
+  height: 8px;
+  background: #4a90e2;
+  border: 1px solid #2c5282;
+  border-radius: 2px;
+}
+
+.pixel-bot-arms::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -22px;
+  width: 4px;
+  height: 8px;
+  background: #4a90e2;
+  border: 1px solid #2c5282;
+  border-radius: 2px;
+}
+
+/* Browser Window */
+.browser-toolbar {
+  background: #f0f0f0;
+  border-bottom: 1px solid #ccc;
+}
+
+.browser-nav-button {
+  background: var(--button-bg);
+  border: 1px outset var(--window-border);
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+}
+
+.browser-nav-button:hover {
+  background: #d4d4d4;
+}
+
+.browser-nav-button:active {
+  border: 1px inset var(--window-border);
+  background: #a0a0a0;
+}
+
+.browser-address-bar {
+  flex: 1;
+  background: white;
+  border: 1px inset var(--window-border);
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+  font-family: 'MS Sans Serif', sans-serif;
 }
