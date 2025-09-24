@@ -10,11 +10,15 @@ interface TaskbarProps {
     team: boolean;
     playlist: boolean;
     nora: boolean;
+    document: boolean;
+    document2: boolean;
   };
-  onToggleWindow: (window: 'projects' | 'team' | 'playlist' | 'nora') => void;
+  onToggleWindow: (window: 'projects' | 'team' | 'playlist' | 'nora' | 'document' | 'document2') => void;
+  useInteractiveBackground: boolean;
+  onToggleBackground: () => void;
 }
 
-export function Taskbar({ activeWindows, onToggleWindow }: TaskbarProps) {
+export function Taskbar({ activeWindows, onToggleWindow, useInteractiveBackground, onToggleBackground }: TaskbarProps) {
   const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
   const [showApplicationsSubmenu, setShowApplicationsSubmenu] = useState(false);
   const [showDocumentsSubmenu, setShowDocumentsSubmenu] = useState(false);
@@ -135,22 +139,40 @@ export function Taskbar({ activeWindows, onToggleWindow }: TaskbarProps) {
                 </div>
 
                 {showDocumentsSubmenu && (
-                  <div className="absolute left-full top-0 ml-1 w-48 bg-gray-200 border-2 border-gray-400 shadow-md z-20">
+                  <div className="absolute left-full top-0 ml-1 w-56 bg-gray-200 border-2 border-gray-400 shadow-md z-20">
+                    <button
+                      className="start-menu-item w-full hover:bg-blue-500 hover:text-white"
+                      onClick={() => {
+                        onToggleWindow('document');
+                        setIsStartMenuOpen(false);
+                        setShowDocumentsSubmenu(false);
+                      }}
+                    >
+                      <Image src="/document.png" alt="" width={16} height={16} />
+                      <span>Fountain Frontline OS.pdf</span>
+                    </button>
+                    <button
+                      className="start-menu-item w-full hover:bg-blue-500 hover:text-white"
+                      onClick={() => {
+                        onToggleWindow('document2');
+                        setIsStartMenuOpen(false);
+                        setShowDocumentsSubmenu(false);
+                      }}
+                    >
+                      <Image src="/document.png" alt="" width={16} height={16} />
+                      <span>Agentic AI for Frontline Workforces - Fountain.pdf</span>
+                    </button>
                     <div className="start-menu-item w-full text-gray-500">
-                      <Folder size={16} />
+                      <Image src="/document.png" alt="" width={16} height={16} />
                       <span>Product_Strategy_2024.pdf</span>
                     </div>
                     <div className="start-menu-item w-full text-gray-500">
-                      <Folder size={16} />
+                      <Image src="/document.png" alt="" width={16} height={16} />
                       <span>AI_Integration_Plan.md</span>
                     </div>
                     <div className="start-menu-item w-full text-gray-500">
-                      <Folder size={16} />
+                      <Image src="/document.png" alt="" width={16} height={16} />
                       <span>Team_Roadmap_Q1.txt</span>
-                    </div>
-                    <div className="start-menu-item w-full text-gray-500">
-                      <Folder size={16} />
-                      <span>Lab_Metrics_Dashboard.xlsx</span>
                     </div>
                   </div>
                 )}
@@ -160,9 +182,15 @@ export function Taskbar({ activeWindows, onToggleWindow }: TaskbarProps) {
             <div className="start-menu-separator"></div>
 
             <div className="start-menu-section">
-              <button className="start-menu-item">
+              <button
+                className="start-menu-item"
+                onClick={() => {
+                  onToggleBackground();
+                  setIsStartMenuOpen(false);
+                }}
+              >
                 <Settings size={16} />
-                <span>Settings</span>
+                <span>{useInteractiveBackground ? 'Gradient Background' : 'Interactive Background'}</span>
               </button>
               <button className="start-menu-item">
                 <HelpCircle size={16} />

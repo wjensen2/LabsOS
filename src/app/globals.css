@@ -262,15 +262,14 @@ html, body {
 }
 
 .desktop-icon:hover {
-  background: rgba(255, 255, 255, 0.1);
+  /* Remove background box */
 }
 
 .desktop-icon:active {
-  background: rgba(255, 255, 255, 0.2);
+  /* Remove background box */
 }
 
 .desktop-icon.dragging {
-  background: rgba(255, 255, 255, 0.3);
   transform: scale(1.05);
   z-index: 1000;
 }
@@ -281,35 +280,14 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(45deg, #e0e0e0 25%, #f0f0f0 25%, #f0f0f0 50%, #e0e0e0 50%, #e0e0e0 75%, #f0f0f0 75%);
-  background-size: 4px 4px;
-  border: 2px solid #808080;
-  border-top-color: #dfdfdf;
-  border-left-color: #dfdfdf;
-  border-bottom-color: #404040;
-  border-right-color: #404040;
   margin-bottom: 4px;
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;
   position: relative;
-  overflow: hidden;
 }
 
-.desktop-icon-image::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg,
-    rgba(255,255,255,0.3) 0%,
-    rgba(255,255,255,0.1) 30%,
-    transparent 70%,
-    rgba(0,0,0,0.1) 100%);
-  pointer-events: none;
-}
+/* Removed desktop icon decoration */
 
 .desktop-icon-image svg {
   filter: contrast(1.2) saturate(1.3);

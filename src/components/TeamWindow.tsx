@@ -1,6 +1,7 @@
 'use client';
 
 import { Bot, User } from 'lucide-react';
+import Image from 'next/image';
 
 interface TeamMember {
   id: string;
@@ -14,17 +15,39 @@ interface TeamMember {
 const teamMembers: TeamMember[] = [
   {
     id: '1',
-    name: '@will',
-    role: 'Lead Developer',
+    name: 'Sean',
+    role: 'CEO',
     status: 'online',
+    avatar: '/bear.png',
   },
   {
     id: '2',
-    name: 'Founty',
-    role: 'AI Assistant',
+    name: 'Will',
+    role: 'Product',
     status: 'online',
-    isAI: true,
-  }
+    avatar: '/duck.png',
+  },
+  {
+    id: '3',
+    name: 'Pete',
+    role: 'Customer Success',
+    status: 'online',
+    avatar: '/mouse.png',
+  },
+  {
+    id: '4',
+    name: 'Hilary',
+    role: 'Operations',
+    status: 'online',
+    avatar: '/unicorn.png',
+  },
+  {
+    id: '5',
+    name: 'Bastien',
+    role: 'Marketing',
+    status: 'online',
+    avatar: '/tiger.png',
+  },
 ];
 
 export function TeamWindow() {
@@ -36,8 +59,17 @@ export function TeamWindow() {
         {teamMembers.map((member) => (
           <div key={member.id} className="flex items-center gap-3 p-3 border border-gray-400 bg-white">
             <div className="relative">
-              <div className="w-8 h-8 bg-gray-300 border border-gray-400 flex items-center justify-center">
-                {member.isAI ? (
+              <div className="w-8 h-8 bg-gray-300 border border-gray-400 flex items-center justify-center overflow-hidden">
+                {member.avatar ? (
+                  <Image
+                    src={member.avatar}
+                    alt={member.name}
+                    width={32}
+                    height={32}
+                    className="w-full h-full object-cover"
+                    style={{ imageRendering: 'pixelated' }}
+                  />
+                ) : member.isAI ? (
                   <Bot size={16} className="text-blue-600" />
                 ) : (
                   <User size={16} className="text-gray-600" />
@@ -55,12 +87,6 @@ export function TeamWindow() {
               <div className="text-xs text-gray-600">{member.role}</div>
               <div className="text-xs text-gray-500 capitalize">{member.status}</div>
             </div>
-            
-            {member.isAI && (
-              <div className="text-xs bg-blue-100 px-2 py-1 rounded">
-                AI
-              </div>
-            )}
           </div>
         ))}
       </div>
@@ -70,7 +96,7 @@ export function TeamWindow() {
         <div className="text-xs space-y-1">
           <div>Total Members: {teamMembers.length}</div>
           <div>Online: {teamMembers.filter(m => m.status === 'online').length}</div>
-          <div>AI Assistants: {teamMembers.filter(m => m.isAI).length}</div>
+          <div>Departments: {new Set(teamMembers.map(m => m.role.split(' ')[0])).size}</div>
         </div>
       </div>
     </div>
