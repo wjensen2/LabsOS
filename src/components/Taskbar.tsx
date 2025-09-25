@@ -12,8 +12,10 @@ interface TaskbarProps {
     nora: boolean;
     document: boolean;
     document2: boolean;
+    survey: boolean;
+    surveyResults: boolean;
   };
-  onToggleWindow: (window: 'projects' | 'team' | 'playlist' | 'nora' | 'document' | 'document2') => void;
+  onToggleWindow: (window: 'projects' | 'team' | 'playlist' | 'nora' | 'document' | 'document2' | 'survey' | 'surveyResults') => void;
   useInteractiveBackground: boolean;
   onToggleBackground: () => void;
 }
@@ -37,7 +39,7 @@ export function Taskbar({ activeWindows, onToggleWindow, useInteractiveBackgroun
   }, []);
 
   return (
-    <div className="taskbar">
+    <div className="taskbar relative">
       {/* Start Menu */}
       <div className="relative" ref={startMenuRef}>
         <button
@@ -119,6 +121,17 @@ export function Taskbar({ activeWindows, onToggleWindow, useInteractiveBackgroun
                     >
                       <Image src="/astronaut.png" alt="" width={16} height={16} />
                       <span>Nora AI</span>
+                    </button>
+                    <button
+                      className="start-menu-item w-full"
+                      onClick={() => {
+                        onToggleWindow('survey');
+                        setIsStartMenuOpen(false);
+                        setShowApplicationsSubmenu(false);
+                      }}
+                    >
+                      <Image src="/rocket.png" alt="" width={16} height={16} />
+                      <span>Summit Agentic Survey</span>
                     </button>
                   </div>
                 )}
@@ -242,9 +255,10 @@ export function Taskbar({ activeWindows, onToggleWindow, useInteractiveBackgroun
         </button>
       </div>
 
-      <div className="ml-auto flex items-center gap-2">
-        <div className="text-xs">
-          {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+      <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+        <div className="text-xs text-right">
+          <div>{new Date().toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}</div>
+          <div>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
         </div>
       </div>
     </div>

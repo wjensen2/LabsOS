@@ -10,6 +10,8 @@ import { DesktopIcon } from '@/components/DesktopIcon';
 import { BrowserWindow } from '@/components/BrowserWindow';
 import { BackgroundBoxes } from '@/components/BackgroundBoxes';
 import { DocumentViewer } from '@/components/DocumentViewer';
+import { PasswordModal } from '@/components/PasswordModal';
+import { SurveyWindow } from '@/components/SurveyWindow';
 
 export default function Home() {
   const [activeWindows, setActiveWindows] = useState({
@@ -19,11 +21,14 @@ export default function Home() {
     nora: false,
     document: false,
     document2: false,
+    survey: false,
+    surveyResults: false,
   });
 
   const [currentTime, setCurrentTime] = useState(new Date());
   const [windowSize, setWindowSize] = useState({ width: 1200, height: 800 });
   const [useInteractiveBackground, setUseInteractiveBackground] = useState(false); // Default to gradient
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -42,14 +47,14 @@ export default function Home() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const toggleWindow = (windowName: 'projects' | 'team' | 'playlist' | 'nora' | 'document' | 'document2') => {
+  const toggleWindow = (windowName: 'projects' | 'team' | 'playlist' | 'nora' | 'document' | 'document2' | 'survey' | 'surveyResults') => {
     setActiveWindows(prev => ({
       ...prev,
       [windowName]: !prev[windowName]
     }));
   };
 
-  const closeWindow = (windowName: 'projects' | 'team' | 'playlist' | 'nora' | 'document' | 'document2') => {
+  const closeWindow = (windowName: 'projects' | 'team' | 'playlist' | 'nora' | 'document' | 'document2' | 'survey' | 'surveyResults') => {
     setActiveWindows(prev => ({
       ...prev,
       [windowName]: false
@@ -57,7 +62,13 @@ export default function Home() {
   };
 
   return (
-    <div className="desktop">
+    <>
+      <PasswordModal
+        isVisible={!isAuthenticated}
+        onPasswordCorrect={() => setIsAuthenticated(true)}
+      />
+
+      <div className="desktop">
       {/* Interactive Background */}
       {useInteractiveBackground && (
         <div className="absolute inset-0 z-0">
@@ -66,7 +77,7 @@ export default function Home() {
       )}
       {/* Desktop Icon Area */}
       <div className="absolute top-4 left-4 desktop-title">
-        <div className="ascii-title mb-3">
+        <div className="ascii-title mb-6">
 {`██████╗ ██╗  ██╗██████╗  ██████╗
 ██╔════╝ ██║  ██║██╔══██╗██╔═══██╗
 ██║      ███████║██████╔╝██║   ██║
@@ -92,7 +103,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Desktop Icons */}
+      {/* Desktop Icons - Scattered placement */}
       <DesktopIcon
         icon={
           <img
@@ -103,8 +114,8 @@ export default function Home() {
           />
         }
         label="NORA AI"
-        x={windowSize.width - 120}
-        y={120}
+        x={windowSize.width - 140}
+        y={95}
         onClick={() => toggleWindow('nora')}
       />
 
@@ -119,9 +130,25 @@ export default function Home() {
           />
         }
         label="FOUNTAIN FRONTLINE OS"
-        x={windowSize.width - 120}
-        y={220}
+        x={windowSize.width - 85}
+        y={190}
         onClick={() => toggleWindow('document')}
+      />
+
+      {/* Survey Desktop Shortcut */}
+      <DesktopIcon
+        icon={
+          <img
+            src="/rocket.png"
+            alt="Summit Agentic Survey"
+            className="w-8 h-8"
+            style={{ imageRendering: 'pixelated' }}
+          />
+        }
+        label="SUMMIT AGENTIC SURVEY"
+        x={windowSize.width - 160}
+        y={300}
+        onClick={() => toggleWindow('survey')}
       />
 
       {/* Windows */}
@@ -206,6 +233,18 @@ export default function Home() {
         />
       </Window>
 
+      <Window
+        title="Summit Agentic Survey"
+        isVisible={activeWindows.survey}
+        onClose={() => closeWindow('survey')}
+        x={175}
+        y={75}
+        width={600}
+        height={500}
+      >
+        <SurveyWindow />
+      </Window>
+
       {/* Taskbar */}
       <Taskbar
         activeWindows={activeWindows}
@@ -213,6 +252,7 @@ export default function Home() {
         useInteractiveBackground={useInteractiveBackground}
         onToggleBackground={() => setUseInteractiveBackground(!useInteractiveBackground)}
       />
-    </div>
+      </div>
+    </>
   );
 }

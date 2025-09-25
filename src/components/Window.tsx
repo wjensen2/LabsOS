@@ -131,7 +131,7 @@ export function Window({
           </div>
 
           {/* Content Area */}
-          <div className="p-4 h-full overflow-auto" style={{ height: `calc(100% - 24px)` }}>
+          <div className="px-6 py-4 h-full overflow-auto" style={{ height: `calc(100% - 24px)` }}>
             {children}
           </div>
 

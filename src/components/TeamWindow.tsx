@@ -7,6 +7,7 @@ interface TeamMember {
   id: string;
   name: string;
   role: string;
+  email: string;
   status: 'online' | 'away' | 'offline';
   avatar?: string;
   isAI?: boolean;
@@ -17,6 +18,7 @@ const teamMembers: TeamMember[] = [
     id: '1',
     name: 'Sean',
     role: 'CEO',
+    email: 'sean@fountain.com',
     status: 'online',
     avatar: '/bear.png',
   },
@@ -24,6 +26,7 @@ const teamMembers: TeamMember[] = [
     id: '2',
     name: 'Will',
     role: 'Product',
+    email: 'will@fountain.com',
     status: 'online',
     avatar: '/duck.png',
   },
@@ -31,6 +34,7 @@ const teamMembers: TeamMember[] = [
     id: '3',
     name: 'Pete',
     role: 'Customer Success',
+    email: 'pete@fountain.com',
     status: 'online',
     avatar: '/mouse.png',
   },
@@ -38,6 +42,7 @@ const teamMembers: TeamMember[] = [
     id: '4',
     name: 'Hilary',
     role: 'Operations',
+    email: 'hilary.church@fountain.com',
     status: 'online',
     avatar: '/unicorn.png',
   },
@@ -45,6 +50,7 @@ const teamMembers: TeamMember[] = [
     id: '5',
     name: 'Bastien',
     role: 'Marketing',
+    email: 'bastien.botella@fountain.com',
     status: 'online',
     avatar: '/tiger.png',
   },
@@ -53,13 +59,13 @@ const teamMembers: TeamMember[] = [
 export function TeamWindow() {
   return (
     <div className="h-full">
-      <h2 className="font-bold text-sm mb-4">Fountain Labs Team</h2>
+      <h2 className="font-bold text-sm mb-4">Fountain Team</h2>
       
       <div className="space-y-3">
         {teamMembers.map((member) => (
           <div key={member.id} className="flex items-center gap-3 p-3 border border-gray-400 bg-white">
             <div className="relative">
-              <div className="w-8 h-8 bg-gray-300 border border-gray-400 flex items-center justify-center overflow-hidden">
+              <div className="w-8 h-8 flex items-center justify-center">
                 {member.avatar ? (
                   <Image
                     src={member.avatar}
@@ -85,6 +91,7 @@ export function TeamWindow() {
             <div className="flex-1">
               <div className="font-bold text-xs">{member.name}</div>
               <div className="text-xs text-gray-600">{member.role}</div>
+              <div className="text-xs text-blue-600 hover:underline cursor-pointer">{member.email}</div>
               <div className="text-xs text-gray-500 capitalize">{member.status}</div>
             </div>
           </div>
