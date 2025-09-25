@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 export const Boxes = ({ className, ...rest }: { className?: string }) => {
   const rows = new Array(80).fill(1); // Increased to cover more area
   const cols = new Array(80).fill(1); // Increased to cover more area
-  let colors = [
+  const colors = [
     "rgb(125, 211, 252)", // sky-300
     "rgb(248, 113, 113)", // red-300
     "rgb(134, 239, 172)", // green-300

@@ -1,6 +1,6 @@
 'use client';
 
-import { Users, Settings, Power, Folder, HelpCircle, User, Bot, ChevronRight } from 'lucide-react';
+import { Settings, Folder, HelpCircle, User, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
 
