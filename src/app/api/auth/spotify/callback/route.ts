@@ -2,12 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const SPOTIFY_CLIENT_ID = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID;
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
-const REDIRECT_URI = process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI || 'https://fountainsummit.com';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
   const error = searchParams.get('error');
+  const state = searchParams.get('state');
+
+  // Check if this is a development request
+  const devOriginMatch = state?.match(/dev_origin=([^&]+)/);
+  const devOrigin = devOriginMatch ? decodeURIComponent(devOriginMatch[1]) : null;
+
+  // Use dev origin if available, otherwise use current request origin
+  const REDIRECT_URI = devOrigin || `${new URL(request.url).protocol}//${new URL(request.url).host}`;
 
   if (error) {
     console.error('Spotify OAuth error:', error);
@@ -21,6 +28,8 @@ export async function GET(request: NextRequest) {
 
   try {
     // Exchange authorization code for access token
+    // Always use production URL for token exchange (this must match the OAuth redirect_uri)
+    const PRODUCTION_URI = process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI || 'https://fountainsummit.com';
     const tokenResponse = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
       headers: {
@@ -30,7 +39,7 @@ export async function GET(request: NextRequest) {
       body: new URLSearchParams({
         grant_type: 'authorization_code',
         code: code,
-        redirect_uri: `${REDIRECT_URI}/api/auth/spotify/callback`
+        redirect_uri: `${PRODUCTION_URI}/api/auth/spotify/callback`
       })
     });
 

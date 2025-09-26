@@ -240,8 +240,10 @@ export class SpotifyService {
 
   getAuthUrl(): string {
     const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID;
-    const redirectUri = process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI ||
-                       (typeof window !== 'undefined' ? window.location.origin : 'https://fountainsummit.com');
+    // Always use production URL for OAuth, add dev flag for localhost
+    const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+    const redirectUri = process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI || 'https://fountainsummit.com';
+
     const scopes = [
       'user-read-playback-state',
       'user-modify-playback-state',
@@ -260,6 +262,11 @@ export class SpotifyService {
       redirect_uri: `${redirectUri}/api/auth/spotify/callback`,
       show_dialog: 'true'
     });
+
+    // Add development flag if running on localhost
+    if (isLocalhost) {
+      params.append('state', `dev_origin=${encodeURIComponent(window.location.origin)}`);
+    }
 
     return `https://accounts.spotify.com/authorize?${params.toString()}`;
   }
