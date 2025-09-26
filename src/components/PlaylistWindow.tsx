@@ -60,9 +60,25 @@ export function PlaylistWindow() {
     const hash = window.location.hash.substring(1);
     const params = new URLSearchParams(hash);
     const accessToken = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+    const expiresAt = params.get('expires_at');
+
+    // Check for stored token first
+    const storedToken = localStorage.getItem('spotify_access_token');
+    const tokenExpiry = localStorage.getItem('spotify_token_expiry');
+    const now = Date.now();
 
     if (accessToken) {
-      console.log('Access token found, setting up Spotify...');
+      console.log('Access token found in URL, setting up Spotify...');
+
+      // Store token and expiry
+      localStorage.setItem('spotify_access_token', accessToken);
+      localStorage.setItem('spotify_token_expiry', expiresAt || (now + 3600000).toString());
+
+      if (refreshToken) {
+        localStorage.setItem('spotify_refresh_token', refreshToken);
+      }
+
       spotify.setAccessToken(accessToken);
       setIsAuthenticated(true);
       loadPlaylists();
@@ -71,6 +87,23 @@ export function PlaylistWindow() {
       // Clean up URL
       window.history.replaceState({}, document.title, window.location.pathname);
 
+      setupPlayer();
+    } else if (storedToken && tokenExpiry && now < parseInt(tokenExpiry)) {
+      console.log('Using stored access token...');
+      spotify.setAccessToken(storedToken);
+      setIsAuthenticated(true);
+      loadPlaylists();
+      loadDevices();
+      setupPlayer();
+    } else if (storedToken && tokenExpiry && now >= parseInt(tokenExpiry)) {
+      console.log('Token expired, need to re-authenticate');
+      // Clear expired tokens
+      localStorage.removeItem('spotify_access_token');
+      localStorage.removeItem('spotify_token_expiry');
+      localStorage.removeItem('spotify_refresh_token');
+    }
+
+    function setupPlayer() {
       // Set up player ready monitoring with timeout
       let playerCheckCount = 0;
       const maxChecks = 60; // 60 seconds max

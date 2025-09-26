@@ -5,10 +5,19 @@ const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY;
 export async function POST(request: NextRequest) {
   try {
     if (!CLAUDE_API_KEY) {
+      console.error('Claude API key not configured');
       return NextResponse.json({ error: 'Claude API key not configured' }, { status: 500 });
     }
 
-    const { productName, productVision, targetAudience, problemStatement, additionalRequirements } = await request.json();
+    let requestBody;
+    try {
+      requestBody = await request.json();
+    } catch (error) {
+      console.error('Failed to parse request body:', error);
+      return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
+    }
+
+    const { productName, productVision, targetAudience, problemStatement, additionalRequirements } = requestBody;
 
     const systemPrompt = `You are an expert at writing clear, comprehensive prompts for developers to use with Replit to build modern web applications. You excel at taking product requirements and turning them into detailed, actionable prompts that result in high-quality applications.
 
@@ -100,6 +109,7 @@ Instructions:
 6. Make the prompt comprehensive and actionable for a developer using Replit
 7. Ensure all technical specifications remain intact`;
 
+    console.log('Making request to Claude API...');
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -120,13 +130,35 @@ Instructions:
       })
     });
 
+    console.log('Claude API response status:', response.status);
+
     if (!response.ok) {
-      throw new Error(`Claude API error: ${response.statusText}`);
+      let errorText;
+      try {
+        const errorData = await response.json();
+        errorText = errorData.error?.message || errorData.message || response.statusText;
+        console.error('Claude API error details:', errorData);
+      } catch {
+        errorText = response.statusText;
+      }
+      throw new Error(`Claude API error: ${errorText}`);
     }
 
-    const data = await response.json();
-    const generatedPrompt = data.content[0].text;
+    let data;
+    try {
+      data = await response.json();
+      console.log('Claude API response received successfully');
+    } catch (error) {
+      console.error('Failed to parse Claude API response:', error);
+      throw new Error('Invalid response from Claude API');
+    }
 
+    if (!data.content || !data.content[0] || !data.content[0].text) {
+      console.error('Unexpected Claude API response structure:', data);
+      throw new Error('Invalid response structure from Claude API');
+    }
+
+    const generatedPrompt = data.content[0].text;
     return NextResponse.json({ prompt: generatedPrompt });
 
   } catch (error) {

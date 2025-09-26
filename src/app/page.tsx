@@ -116,8 +116,8 @@ export default function Home() {
           />
         }
         label="NORA AI"
-        x={windowSize.width - 140}
-        y={95}
+        x={windowSize.width - 175}
+        y={120}
         onClick={() => toggleWindow('nora')}
       />
 
@@ -132,8 +132,8 @@ export default function Home() {
           />
         }
         label="FOUNTAIN FRONTLINE OS"
-        x={windowSize.width - 85}
-        y={190}
+        x={windowSize.width - 220}
+        y={280}
         onClick={() => toggleWindow('document')}
       />
 
@@ -148,8 +148,8 @@ export default function Home() {
           />
         }
         label="SUMMIT AGENTIC SURVEY"
-        x={windowSize.width - 160}
-        y={300}
+        x={windowSize.width - 90}
+        y={200}
         onClick={() => toggleWindow('survey')}
       />
 
@@ -164,8 +164,8 @@ export default function Home() {
           />
         }
         label="PROMPT BUILDER"
-        x={windowSize.width - 90}
-        y={400}
+        x={windowSize.width - 260}
+        y={450}
         onClick={() => toggleWindow('promptBuilder')}
       />
 

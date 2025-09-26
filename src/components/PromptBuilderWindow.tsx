@@ -30,14 +30,26 @@ export function PromptBuilderWindow() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.details || 'Failed to generate prompt');
+        let errorMessage = 'Failed to generate prompt';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.details || errorData.error || errorMessage;
+        } catch {
+          // If JSON parsing fails, use status text
+          errorMessage = `Server error: ${response.status} ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
+      if (!data || !data.prompt) {
+        throw new Error('Invalid response from server - no prompt generated');
+      }
+
       setGeneratedPrompt(data.prompt);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred while generating the prompt');
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred while generating the prompt';
+      setError(errorMessage);
       console.error('Error generating prompt:', err);
     } finally {
       setIsLoading(false);
@@ -139,12 +151,12 @@ export function PromptBuilderWindow() {
               {isLoading ? (
                 <>
                   <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
-                  Generating with Claude...
+                  Generating Prompt...
                 </>
               ) : (
                 <>
                   <Sparkles size={16} />
-                  Generate with Claude Sonnet 4
+                  Generate Prompt
                 </>
               )}
             </button>

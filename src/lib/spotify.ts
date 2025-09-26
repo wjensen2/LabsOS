@@ -240,7 +240,8 @@ export class SpotifyService {
 
   getAuthUrl(): string {
     const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID;
-    const redirectUri = typeof window !== 'undefined' ? window.location.origin : '';
+    const redirectUri = process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI ||
+                       (typeof window !== 'undefined' ? window.location.origin : 'https://fountainsummit.com');
     const scopes = [
       'user-read-playback-state',
       'user-modify-playback-state',
@@ -253,10 +254,10 @@ export class SpotifyService {
     ];
 
     const params = new URLSearchParams({
-      response_type: 'token',
+      response_type: 'code',
       client_id: clientId!,
       scope: scopes.join(' '),
-      redirect_uri: redirectUri,
+      redirect_uri: `${redirectUri}/api/auth/spotify/callback`,
       show_dialog: 'true'
     });
 
