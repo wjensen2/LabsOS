@@ -1,0 +1,139 @@
+import { NextRequest, NextResponse } from 'next/server';
+
+const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY;
+
+export async function POST(request: NextRequest) {
+  try {
+    if (!CLAUDE_API_KEY) {
+      return NextResponse.json({ error: 'Claude API key not configured' }, { status: 500 });
+    }
+
+    const { productName, productVision, targetAudience, problemStatement, additionalRequirements } = await request.json();
+
+    const systemPrompt = `You are an expert at writing clear, comprehensive prompts for developers to use with Replit to build modern web applications. You excel at taking product requirements and turning them into detailed, actionable prompts that result in high-quality applications.
+
+Your task is to take the user's product requirements and create a comprehensive prompt that includes:
+1. The provided base template structure
+2. Intelligent expansion of their requirements
+3. Specific technical recommendations based on their use case
+4. Clear implementation guidance
+
+Always maintain the exact structure and format of the base template, but intelligently fill in and expand the sections based on the user's input.`;
+
+    const baseTemplate = `You're building a sleek, modern web application using **React**, **Tailwind CSS**, **shadcn/ui**, and optional **tweakcn** themes. Follow these rules carefully:
+
+---
+
+## 🧠 Product Overview
+
+**Goal:** Build a web application that helps [PRODUCT_PURPOSE]
+
+**Why it matters:** This app is meant to [PROBLEM_SOLUTION]
+
+**Audience:** Designed for [TARGET_AUDIENCE]
+
+---
+
+## 🎨 Design Style
+
+Use the following to make the app look modern and clean:
+
+- **shadcn/ui** components for layout and structure (e.g. \`Card\`, \`Button\`, \`Input\`, \`Tabs\`, \`Dialog\`)
+- **Tailwind CSS** for layout and spacing (stick to 8px rhythm)
+- Optional: **tweakcn** theme (e.g., \`amberMinimal\`, \`metroPop\`, or \`earthTones\`) to apply a cool color palette and typography
+- Responsive and accessible by default
+- Avoid custom CSS unless absolutely necessary
+
+---
+
+## 📱 UX Expectations
+
+- Mobile-friendly, easy to navigate
+- Use real or placeholder data
+- Include **loading**, **empty**, and **error** states
+- Clear headings, labels, and CTA buttons
+- Focus on **clarity and simplicity**
+- Feel like a real product demo or MVP
+
+---
+
+## 🚀 Install Guide (Optional for devs)
+
+\`\`\`bash
+# Init shadcn/ui with MCP
+npx shadcn@latest init
+
+# Add common components
+npx shadcn@latest add button card dialog input form tabs
+
+# Optional: Add tweakcn and theme config
+npm install tweakcn
+\`\`\`
+
+---
+
+## 🔧 Specific Requirements
+
+[ADDITIONAL_REQUIREMENTS]
+
+---
+
+Please build this application with the specifications above. Make sure it's fully functional and includes all the necessary components for a complete user experience.`;
+
+    const userPrompt = `Please create a comprehensive Replit prompt using this base template and the following user requirements:
+
+**Product Name:** ${productName || 'Not provided'}
+**Product Vision:** ${productVision || 'Not provided'}
+**Target Audience:** ${targetAudience || 'Not provided'}
+**Problem Statement:** ${problemStatement || 'Not provided'}
+**Additional Requirements:** ${additionalRequirements || 'None specified'}
+
+BASE TEMPLATE TO USE:
+${baseTemplate}
+
+Instructions:
+1. Keep the exact structure and formatting of the base template
+2. Replace [PRODUCT_PURPOSE] with an intelligent interpretation of the product vision
+3. Replace [PROBLEM_SOLUTION] with a clear statement based on the problem statement
+4. Replace [TARGET_AUDIENCE] with the specified audience
+5. Replace [ADDITIONAL_REQUIREMENTS] with the additional requirements, or suggest relevant requirements if none provided
+6. Make the prompt comprehensive and actionable for a developer using Replit
+7. Ensure all technical specifications remain intact`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': CLAUDE_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 2000,
+        system: systemPrompt,
+        messages: [
+          {
+            role: 'user',
+            content: userPrompt
+          }
+        ]
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Claude API error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const generatedPrompt = data.content[0].text;
+
+    return NextResponse.json({ prompt: generatedPrompt });
+
+  } catch (error) {
+    console.error('Error generating prompt:', error);
+    return NextResponse.json({
+      error: 'Failed to generate prompt',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
+  }
+}

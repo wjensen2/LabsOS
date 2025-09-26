@@ -14,8 +14,9 @@ interface TaskbarProps {
     document2: boolean;
     survey: boolean;
     surveyResults: boolean;
+    promptBuilder: boolean;
   };
-  onToggleWindow: (window: 'projects' | 'team' | 'playlist' | 'nora' | 'document' | 'document2' | 'survey' | 'surveyResults') => void;
+  onToggleWindow: (window: 'projects' | 'team' | 'playlist' | 'nora' | 'document' | 'document2' | 'survey' | 'surveyResults' | 'promptBuilder') => void;
   useInteractiveBackground: boolean;
   onToggleBackground: () => void;
 }
@@ -130,8 +131,19 @@ export function Taskbar({ activeWindows, onToggleWindow, useInteractiveBackgroun
                         setShowApplicationsSubmenu(false);
                       }}
                     >
-                      <Image src="/rocket.png" alt="" width={16} height={16} />
+                      <Image src="/bar-chart.png" alt="" width={16} height={16} />
                       <span>Summit Agentic Survey</span>
+                    </button>
+                    <button
+                      className="start-menu-item w-full"
+                      onClick={() => {
+                        onToggleWindow('promptBuilder');
+                        setIsStartMenuOpen(false);
+                        setShowApplicationsSubmenu(false);
+                      }}
+                    >
+                      <Image src="/construction.png" alt="" width={16} height={16} />
+                      <span>Prompt Builder</span>
                     </button>
                   </div>
                 )}

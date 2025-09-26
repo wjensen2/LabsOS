@@ -12,6 +12,7 @@ import { BackgroundBoxes } from '@/components/BackgroundBoxes';
 import { DocumentViewer } from '@/components/DocumentViewer';
 import { PasswordModal } from '@/components/PasswordModal';
 import { SurveyWindow } from '@/components/SurveyWindow';
+import { PromptBuilderWindow } from '@/components/PromptBuilderWindow';
 
 export default function Home() {
   const [activeWindows, setActiveWindows] = useState({
@@ -23,6 +24,7 @@ export default function Home() {
     document2: false,
     survey: false,
     surveyResults: false,
+    promptBuilder: false,
   });
 
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -47,14 +49,14 @@ export default function Home() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const toggleWindow = (windowName: 'projects' | 'team' | 'playlist' | 'nora' | 'document' | 'document2' | 'survey' | 'surveyResults') => {
+  const toggleWindow = (windowName: 'projects' | 'team' | 'playlist' | 'nora' | 'document' | 'document2' | 'survey' | 'surveyResults' | 'promptBuilder') => {
     setActiveWindows(prev => ({
       ...prev,
       [windowName]: !prev[windowName]
     }));
   };
 
-  const closeWindow = (windowName: 'projects' | 'team' | 'playlist' | 'nora' | 'document' | 'document2' | 'survey' | 'surveyResults') => {
+  const closeWindow = (windowName: 'projects' | 'team' | 'playlist' | 'nora' | 'document' | 'document2' | 'survey' | 'surveyResults' | 'promptBuilder') => {
     setActiveWindows(prev => ({
       ...prev,
       [windowName]: false
@@ -139,7 +141,7 @@ export default function Home() {
       <DesktopIcon
         icon={
           <img
-            src="/rocket.png"
+            src="/bar-chart.png"
             alt="Summit Agentic Survey"
             className="w-8 h-8"
             style={{ imageRendering: 'pixelated' }}
@@ -149,6 +151,22 @@ export default function Home() {
         x={windowSize.width - 160}
         y={300}
         onClick={() => toggleWindow('survey')}
+      />
+
+      {/* Prompt Builder Desktop Shortcut */}
+      <DesktopIcon
+        icon={
+          <img
+            src="/construction.png"
+            alt="Prompt Builder"
+            className="w-8 h-8"
+            style={{ imageRendering: 'pixelated' }}
+          />
+        }
+        label="PROMPT BUILDER"
+        x={windowSize.width - 90}
+        y={400}
+        onClick={() => toggleWindow('promptBuilder')}
       />
 
       {/* Windows */}
@@ -243,6 +261,18 @@ export default function Home() {
         height={500}
       >
         <SurveyWindow />
+      </Window>
+
+      <Window
+        title="Prompt Builder"
+        isVisible={activeWindows.promptBuilder}
+        onClose={() => closeWindow('promptBuilder')}
+        x={100}
+        y={50}
+        width={900}
+        height={600}
+      >
+        <PromptBuilderWindow />
       </Window>
 
       {/* Taskbar */}
