@@ -110,7 +110,7 @@ export function Taskbar({ activeWindows, onToggleWindow, useInteractiveBackgroun
                       }}
                     >
                       <Image src="/musical-score.png" alt="" width={16} height={16} />
-                      <span>Playlist</span>
+                      <span>Music Player</span>
                     </button>
                     <button
                       className="start-menu-item w-full"
@@ -255,7 +255,7 @@ export function Taskbar({ activeWindows, onToggleWindow, useInteractiveBackgroun
           onClick={() => onToggleWindow('playlist')}
         >
           <Image src="/musical-score.png" alt="" width={12} height={12} />
-          Playlist
+          Music
         </button>
 
         <button

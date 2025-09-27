@@ -5,7 +5,7 @@ import { Window } from '@/components/Window';
 import { Taskbar } from '@/components/Taskbar';
 import { ProjectsWindow } from '@/components/ProjectsWindow';
 import { TeamWindow } from '@/components/TeamWindow';
-import { PlaylistWindow } from '@/components/PlaylistWindow';
+import { SpotifyPlayer } from '@/components/SpotifyPlayer';
 import { DesktopIcon } from '@/components/DesktopIcon';
 import { BrowserWindow } from '@/components/BrowserWindow';
 import { BackgroundBoxes } from '@/components/BackgroundBoxes';
@@ -194,17 +194,10 @@ export default function Home() {
         <TeamWindow />
       </Window>
 
-      <Window
-        title="Playlist - Fountain Labs"
-        isVisible={activeWindows.playlist}
-        onClose={() => closeWindow('playlist')}
-        x={250}
-        y={150}
-        width={400}
-        height={380}
-      >
-        <PlaylistWindow />
-      </Window>
+      {/* Native Spotify Player on Desktop */}
+      {activeWindows.playlist && (
+        <SpotifyPlayer onClose={() => closeWindow('playlist')} />
+      )}
 
       <Window
         title="Nora AI - Browser"
