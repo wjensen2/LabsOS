@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Copy, FileText, Download, Sparkles } from 'lucide-react';
+import { Copy, Download, Sparkles, FileText } from 'lucide-react';
 
 export function PromptBuilderWindow() {
   const [formData, setFormData] = useState({
@@ -35,7 +35,6 @@ export function PromptBuilderWindow() {
           const errorData = await response.json();
           errorMessage = errorData.details || errorData.error || errorMessage;
         } catch {
-          // If JSON parsing fails, use status text
           errorMessage = `Server error: ${response.status} ${response.statusText}`;
         }
         throw new Error(errorMessage);
@@ -72,97 +71,162 @@ export function PromptBuilderWindow() {
     URL.revokeObjectURL(url);
   };
 
+  const handleReset = () => {
+    setFormData({
+      productName: '',
+      productVision: '',
+      targetAudience: '',
+      problemStatement: '',
+      additionalRequirements: ''
+    });
+    setGeneratedPrompt('');
+    setError('');
+  };
+
   return (
-    <div className="h-full flex flex-col bg-gray-100">
-      <div className="flex-1 flex gap-4 p-4">
+    <div className="h-full flex bg-gray-200 font-sans">
+      {/* Main container with classic Mac OS styling */}
+      <div className="flex-1 flex">
         {/* Left Panel - Form */}
-        <div className="w-1/2 bg-white border-2 border-gray-400 p-4" style={{ borderStyle: 'inset' }}>
-          <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-            <FileText size={20} />
-            Product Requirements
-          </h3>
+        <div className="w-1/2 bg-gray-200 border-r-2 border-gray-400 p-6 overflow-y-auto">
+          <div className="text-center mb-6">
+            <h3 className="text-xl font-bold mb-2">Product Requirements</h3>
+            <p className="text-xs text-gray-600">Fill in your product details below</p>
+          </div>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-bold mb-1">Product Name</label>
-              <input
-                type="text"
-                className="w-full px-3 py-2 border-2 border-gray-400 text-sm"
-                style={{ borderStyle: 'inset' }}
-                value={formData.productName}
-                onChange={(e) => setFormData({...formData, productName: e.target.value})}
-                placeholder="e.g., Interview Prep Assistant"
-              />
+          <div className="space-y-5">
+            {/* Product Name Field */}
+            <div className="flex items-start gap-4">
+              <label className="font-bold text-sm mt-2 w-32 text-right">
+                Product Name:
+              </label>
+              <div className="flex-1">
+                <input
+                  type="text"
+                  className="w-full px-2 py-1.5 bg-white border-2 border-black text-sm font-mono"
+                  style={{
+                    boxShadow: 'inset -1px -1px 0 white, inset 1px 1px 0 #808080',
+                    outline: 'none'
+                  }}
+                  value={formData.productName}
+                  onChange={(e) => setFormData({...formData, productName: e.target.value})}
+                  placeholder="e.g., Interview Prep Assistant"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-bold mb-1">Product Vision</label>
-              <textarea
-                className="w-full px-3 py-2 border-2 border-gray-400 text-sm h-20"
-                style={{ borderStyle: 'inset' }}
-                value={formData.productVision}
-                onChange={(e) => setFormData({...formData, productVision: e.target.value})}
-                placeholder="What does your product help users accomplish?"
-              />
+            {/* Product Vision Field */}
+            <div className="flex items-start gap-4">
+              <label className="font-bold text-sm mt-2 w-32 text-right">
+                Product Vision:
+              </label>
+              <div className="flex-1">
+                <textarea
+                  className="w-full px-2 py-1.5 bg-white border-2 border-black text-sm font-mono h-20 resize-none"
+                  style={{
+                    boxShadow: 'inset -1px -1px 0 white, inset 1px 1px 0 #808080',
+                    outline: 'none'
+                  }}
+                  value={formData.productVision}
+                  onChange={(e) => setFormData({...formData, productVision: e.target.value})}
+                  placeholder="What does your product help users accomplish?"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-bold mb-1">Target Audience</label>
-              <input
-                type="text"
-                className="w-full px-3 py-2 border-2 border-gray-400 text-sm"
-                style={{ borderStyle: 'inset' }}
-                value={formData.targetAudience}
-                onChange={(e) => setFormData({...formData, targetAudience: e.target.value})}
-                placeholder="e.g., frontline workers, students, small business owners"
-              />
+            {/* Target Audience Field */}
+            <div className="flex items-start gap-4">
+              <label className="font-bold text-sm mt-2 w-32 text-right">
+                Target Audience:
+              </label>
+              <div className="flex-1">
+                <input
+                  type="text"
+                  className="w-full px-2 py-1.5 bg-white border-2 border-black text-sm font-mono"
+                  style={{
+                    boxShadow: 'inset -1px -1px 0 white, inset 1px 1px 0 #808080',
+                    outline: 'none'
+                  }}
+                  value={formData.targetAudience}
+                  onChange={(e) => setFormData({...formData, targetAudience: e.target.value})}
+                  placeholder="e.g., students, businesses"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-bold mb-1">Problem Statement</label>
-              <textarea
-                className="w-full px-3 py-2 border-2 border-gray-400 text-sm h-20"
-                style={{ borderStyle: 'inset' }}
-                value={formData.problemStatement}
-                onChange={(e) => setFormData({...formData, problemStatement: e.target.value})}
-                placeholder="What problem does this solve or what value does it create?"
-              />
+            {/* Problem Statement Field */}
+            <div className="flex items-start gap-4">
+              <label className="font-bold text-sm mt-2 w-32 text-right">
+                Problem Statement:
+              </label>
+              <div className="flex-1">
+                <textarea
+                  className="w-full px-2 py-1.5 bg-white border-2 border-black text-sm font-mono h-20 resize-none"
+                  style={{
+                    boxShadow: 'inset -1px -1px 0 white, inset 1px 1px 0 #808080',
+                    outline: 'none'
+                  }}
+                  value={formData.problemStatement}
+                  onChange={(e) => setFormData({...formData, problemStatement: e.target.value})}
+                  placeholder="What problem does this solve?"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-bold mb-1">Additional Requirements</label>
-              <textarea
-                className="w-full px-3 py-2 border-2 border-gray-400 text-sm h-16"
-                style={{ borderStyle: 'inset' }}
-                value={formData.additionalRequirements}
-                onChange={(e) => setFormData({...formData, additionalRequirements: e.target.value})}
-                placeholder="Any specific features, integrations, or technical requirements?"
-              />
+            {/* Additional Requirements Field */}
+            <div className="flex items-start gap-4">
+              <label className="font-bold text-sm mt-2 w-32 text-right">
+                Requirements:
+              </label>
+              <div className="flex-1">
+                <textarea
+                  className="w-full px-2 py-1.5 bg-white border-2 border-black text-sm font-mono h-16 resize-none"
+                  style={{
+                    boxShadow: 'inset -1px -1px 0 white, inset 1px 1px 0 #808080',
+                    outline: 'none'
+                  }}
+                  value={formData.additionalRequirements}
+                  onChange={(e) => setFormData({...formData, additionalRequirements: e.target.value})}
+                  placeholder="Specific features or integrations"
+                />
+              </div>
             </div>
 
-            <button
-              onClick={generatePrompt}
-              disabled={isLoading}
-              className={`w-full py-3 text-white font-bold border-2 border-gray-800 flex items-center justify-center gap-2 ${
-                isLoading ? 'bg-gray-500' : 'bg-blue-500 hover:bg-blue-600'
-              }`}
-              style={{ borderStyle: 'outset' }}
-            >
-              {isLoading ? (
-                <>
-                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
-                  Generating Prompt...
-                </>
-              ) : (
-                <>
-                  <Sparkles size={16} />
-                  Generate Prompt
-                </>
-              )}
-            </button>
+            {/* Buttons */}
+            <div className="flex justify-center gap-3 pt-4">
+              <button
+                onClick={handleReset}
+                className="px-6 py-2 bg-gray-200 font-bold text-sm border-2 border-black hover:bg-gray-300"
+                style={{
+                  boxShadow: '2px 2px 0 black, inset 1px 1px 0 white, inset -1px -1px 0 #808080',
+                }}
+              >
+                Clear
+              </button>
+              <button
+                onClick={generatePrompt}
+                disabled={isLoading}
+                className={`px-6 py-2 font-bold text-sm border-2 border-black ${
+                  isLoading
+                    ? 'bg-gray-300 text-gray-500'
+                    : 'bg-white hover:bg-gray-100'
+                }`}
+                style={{
+                  boxShadow: isLoading
+                    ? 'inset -1px -1px 0 white, inset 1px 1px 0 #808080'
+                    : '2px 2px 0 black, inset 1px 1px 0 white, inset -1px -1px 0 #808080',
+                }}
+              >
+                {isLoading ? 'Generating...' : 'Generate Prompt'}
+              </button>
+            </div>
 
+            {/* Error Message */}
             {error && (
-              <div className="mt-3 p-3 bg-red-100 border-2 border-red-400 text-red-700 text-sm" style={{ borderStyle: 'inset' }}>
+              <div className="mt-4 p-3 bg-white border-2 border-black text-red-600 text-xs"
+                style={{
+                  boxShadow: 'inset -1px -1px 0 white, inset 1px 1px 0 #808080'
+                }}>
                 <strong>Error:</strong> {error}
               </div>
             )}
@@ -170,57 +234,69 @@ export function PromptBuilderWindow() {
         </div>
 
         {/* Right Panel - Generated Prompt */}
-        <div className="w-1/2 bg-white border-2 border-gray-400 p-4 flex flex-col" style={{ borderStyle: 'inset' }}>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-lg flex items-center gap-2">
-              <FileText size={20} />
-              Generated Prompt
-            </h3>
-            {generatedPrompt && (
-              <div className="flex gap-2">
-                <button
-                  onClick={copyToClipboard}
-                  className="px-3 py-1 bg-green-500 text-white text-xs font-bold border-2 border-gray-800 hover:bg-green-600 flex items-center gap-1"
-                  style={{ borderStyle: 'outset' }}
-                >
-                  <Copy size={12} />
-                  Copy
-                </button>
-                <button
-                  onClick={downloadAsFile}
-                  className="px-3 py-1 bg-purple-500 text-white text-xs font-bold border-2 border-gray-800 hover:bg-purple-600 flex items-center gap-1"
-                  style={{ borderStyle: 'outset' }}
-                >
-                  <Download size={12} />
-                  Download
-                </button>
+        <div className="w-1/2 bg-gray-200 p-6 flex flex-col overflow-hidden">
+          <div className="text-center mb-4">
+            <h3 className="text-xl font-bold mb-2">Generated Prompt</h3>
+            <p className="text-xs text-gray-600">
+              {generatedPrompt ? 'Your Replit prompt is ready!' : 'Prompt will appear here'}
+            </p>
+          </div>
+
+          {/* Output Area */}
+          <div className="flex-1 bg-white border-2 border-black p-4 overflow-auto mb-4 font-mono text-xs"
+            style={{
+              boxShadow: 'inset -1px -1px 0 white, inset 1px 1px 0 #808080'
+            }}>
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center h-full">
+                <div className="animate-spin w-8 h-8 border-2 border-black border-t-transparent rounded-full mb-4"></div>
+                <div className="text-center text-gray-600">
+                  <div className="font-bold mb-2">Processing with Claude...</div>
+                  <div className="text-xs">Please wait a moment</div>
+                </div>
+              </div>
+            ) : generatedPrompt ? (
+              <pre className="whitespace-pre-wrap text-black leading-relaxed">
+                {generatedPrompt}
+              </pre>
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-500 text-center">
+                <div>
+                  <div className="mb-3">
+                    <FileText size={32} className="mx-auto opacity-50" />
+                  </div>
+                  <div>Ready to generate your prompt</div>
+                  <div className="text-xs mt-2">Fill in the form and click Generate</div>
+                </div>
               </div>
             )}
           </div>
 
-          <div className="flex-1 bg-gray-50 border-2 border-gray-400 p-3 overflow-auto" style={{ borderStyle: 'inset' }}>
-            {isLoading ? (
-              <div className="flex flex-col items-center justify-center h-full text-center">
-                <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full mb-4"></div>
-                <div className="text-gray-600 text-sm">
-                  <div className="font-bold mb-2">🤖 Claude is crafting your prompt...</div>
-                  <div className="text-xs">This may take a few seconds</div>
-                </div>
-              </div>
-            ) : generatedPrompt ? (
-              <pre className="text-xs whitespace-pre-wrap font-mono text-gray-800 leading-relaxed">
-                {generatedPrompt}
-              </pre>
-            ) : (
-              <div className="text-center text-gray-500 text-sm mt-8">
-                <div className="mb-4">✨ Ready to create your perfect Replit prompt?</div>
-                <div className="text-xs">
-                  Fill out the form and click "Generate with Claude Sonnet 4" to create a
-                  comprehensive, tailored prompt for your project.
-                </div>
-              </div>
-            )}
-          </div>
+          {/* Action Buttons */}
+          {generatedPrompt && (
+            <div className="flex justify-center gap-3">
+              <button
+                onClick={copyToClipboard}
+                className="px-6 py-2 bg-white font-bold text-sm border-2 border-black hover:bg-gray-100 flex items-center gap-2"
+                style={{
+                  boxShadow: '2px 2px 0 black, inset 1px 1px 0 white, inset -1px -1px 0 #808080',
+                }}
+              >
+                <Copy size={14} />
+                Copy
+              </button>
+              <button
+                onClick={downloadAsFile}
+                className="px-6 py-2 bg-white font-bold text-sm border-2 border-black hover:bg-gray-100 flex items-center gap-2"
+                style={{
+                  boxShadow: '2px 2px 0 black, inset 1px 1px 0 white, inset -1px -1px 0 #808080',
+                }}
+              >
+                <Download size={14} />
+                Save
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
