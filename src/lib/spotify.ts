@@ -4,7 +4,9 @@ import SpotifyWebApi from 'spotify-web-api-js';
 declare global {
   interface Window {
     onSpotifyWebPlaybackSDKReady: () => void;
-    Spotify: {
+    _spotifySDKReady?: boolean;
+    _spotifySDKReadyCallbacks?: Array<() => void>;
+    Spotify?: {
       Player: new (options: {
         name: string;
         getOAuthToken: (cb: (token: string) => void) => void;
@@ -131,7 +133,8 @@ export class SpotifyService {
     this.accessToken = token;
     spotifyApi.setAccessToken(token);
     this.isInitialized = true;
-    this.initializeWebPlayback();
+    // Delay initialization slightly to ensure DOM is ready
+    setTimeout(() => this.initializeWebPlayback(), 100);
   }
 
   private initializeWebPlayback() {
@@ -198,34 +201,36 @@ export class SpotifyService {
       });
     };
 
-    // Ensure the global callback exists before any script loads
-    if (!window.onSpotifyWebPlaybackSDKReady) {
-      console.log('Setting up Spotify SDK ready callback...');
-      window.onSpotifyWebPlaybackSDKReady = initPlayer;
-    }
-
-    // If SDK is already loaded, initialize immediately
-    if (window.Spotify) {
-      console.log('Spotify SDK already loaded, initializing...');
+    // Check if SDK is already ready
+    if (window._spotifySDKReady && window.Spotify) {
+      console.log('Spotify SDK already ready, initializing player...');
+      initPlayer();
+    } else if (window.Spotify) {
+      console.log('Spotify SDK loaded but callback not fired, initializing...');
       initPlayer();
     } else {
-      console.log('Waiting for Spotify SDK to load...');
-      // Also try to poll for the SDK in case the callback doesn't fire
+      console.log('Registering callback for when Spotify SDK loads...');
+      // Register our callback
+      if (!window._spotifySDKReadyCallbacks) {
+        window._spotifySDKReadyCallbacks = [];
+      }
+      window._spotifySDKReadyCallbacks.push(initPlayer);
+
+      // Also poll as a fallback
+      let pollAttempts = 0;
+      const maxPollAttempts = 30;
+
       const checkForSDK = setInterval(() => {
-        if (window.Spotify) {
+        pollAttempts++;
+        if (window.Spotify && !this.player) {
           console.log('Spotify SDK loaded via polling, initializing...');
           clearInterval(checkForSDK);
           initPlayer();
+        } else if (pollAttempts >= maxPollAttempts) {
+          console.error('Spotify SDK failed to load within 30 seconds');
+          clearInterval(checkForSDK);
         }
       }, 1000);
-
-      // Stop polling after 30 seconds
-      setTimeout(() => {
-        clearInterval(checkForSDK);
-        if (!this.player) {
-          console.error('Spotify SDK failed to load within 30 seconds');
-        }
-      }, 30000);
     }
   }
 
