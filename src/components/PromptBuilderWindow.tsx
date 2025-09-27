@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Copy, Download, Sparkles, FileText } from 'lucide-react';
+import { Copy, Download, FileText } from 'lucide-react';
 
 export function PromptBuilderWindow() {
   const [formData, setFormData] = useState({
@@ -84,29 +84,35 @@ export function PromptBuilderWindow() {
   };
 
   return (
-    <div className="h-full flex bg-gray-200 font-sans">
+    <div className="h-full flex bg-gray-200 font-sans" style={{ backgroundColor: '#c0c0c0' }}>
       {/* Main container with classic Mac OS styling */}
       <div className="flex-1 flex">
         {/* Left Panel - Form */}
-        <div className="w-1/2 bg-gray-200 border-r-4 border-gray-400 p-6 overflow-y-auto">
-          <div className="text-center mb-6">
-            <h3 className="text-xl font-bold mb-2">Product Requirements</h3>
-            <p className="text-xs text-gray-600">Fill in your product details below</p>
+        <div className="w-1/2 border-r-4 border-gray-500 p-8 overflow-y-auto" style={{
+          backgroundColor: '#c0c0c0',
+          borderRightColor: '#808080'
+        }}>
+          <div className="text-center mb-8">
+            <h3 className="text-xl font-bold mb-3" style={{ fontFamily: 'Chicago, sans-serif' }}>
+              Product Requirements
+            </h3>
+            <p className="text-xs text-gray-700">Fill in your product details below</p>
           </div>
 
-          <div className="space-y-8">
+          <div className="space-y-6">
             {/* Product Name Field */}
             <div className="flex items-start gap-4">
-              <label className="font-bold text-sm mt-2 w-32 text-right">
+              <label className="font-bold text-sm mt-2 w-36 text-right" style={{ minWidth: '144px' }}>
                 Product Name:
               </label>
               <div className="flex-1">
                 <input
                   type="text"
-                  className="w-full px-2 py-1.5 bg-white border-2 border-black text-sm font-mono"
+                  className="w-full px-3 py-2 bg-white border-2 border-black text-sm font-mono"
                   style={{
-                    boxShadow: 'inset -1px -1px 0 white, inset 1px 1px 0 #808080',
-                    outline: 'none'
+                    boxShadow: 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080',
+                    outline: 'none',
+                    fontFamily: 'Monaco, monospace'
                   }}
                   value={formData.productName}
                   onChange={(e) => setFormData({...formData, productName: e.target.value})}
@@ -117,15 +123,16 @@ export function PromptBuilderWindow() {
 
             {/* Product Vision Field */}
             <div className="flex items-start gap-4">
-              <label className="font-bold text-sm mt-2 w-32 text-right">
+              <label className="font-bold text-sm mt-2 w-36 text-right" style={{ minWidth: '144px' }}>
                 Product Vision:
               </label>
               <div className="flex-1">
                 <textarea
-                  className="w-full px-2 py-1.5 bg-white border-2 border-black text-sm font-mono h-20 resize-none"
+                  className="w-full px-3 py-2 bg-white border-2 border-black text-sm font-mono h-24 resize-none"
                   style={{
-                    boxShadow: 'inset -1px -1px 0 white, inset 1px 1px 0 #808080',
-                    outline: 'none'
+                    boxShadow: 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080',
+                    outline: 'none',
+                    fontFamily: 'Monaco, monospace'
                   }}
                   value={formData.productVision}
                   onChange={(e) => setFormData({...formData, productVision: e.target.value})}
@@ -136,16 +143,17 @@ export function PromptBuilderWindow() {
 
             {/* Target Audience Field */}
             <div className="flex items-start gap-4">
-              <label className="font-bold text-sm mt-2 w-32 text-right">
+              <label className="font-bold text-sm mt-2 w-36 text-right" style={{ minWidth: '144px' }}>
                 Target Audience:
               </label>
               <div className="flex-1">
                 <input
                   type="text"
-                  className="w-full px-2 py-1.5 bg-white border-2 border-black text-sm font-mono"
+                  className="w-full px-3 py-2 bg-white border-2 border-black text-sm font-mono"
                   style={{
-                    boxShadow: 'inset -1px -1px 0 white, inset 1px 1px 0 #808080',
-                    outline: 'none'
+                    boxShadow: 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080',
+                    outline: 'none',
+                    fontFamily: 'Monaco, monospace'
                   }}
                   value={formData.targetAudience}
                   onChange={(e) => setFormData({...formData, targetAudience: e.target.value})}
@@ -156,15 +164,16 @@ export function PromptBuilderWindow() {
 
             {/* Problem Statement Field */}
             <div className="flex items-start gap-4">
-              <label className="font-bold text-sm mt-2 w-32 text-right">
+              <label className="font-bold text-sm mt-2 w-36 text-right" style={{ minWidth: '144px' }}>
                 Problem Statement:
               </label>
               <div className="flex-1">
                 <textarea
-                  className="w-full px-2 py-1.5 bg-white border-2 border-black text-sm font-mono h-20 resize-none"
+                  className="w-full px-3 py-2 bg-white border-2 border-black text-sm font-mono h-24 resize-none"
                   style={{
-                    boxShadow: 'inset -1px -1px 0 white, inset 1px 1px 0 #808080',
-                    outline: 'none'
+                    boxShadow: 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080',
+                    outline: 'none',
+                    fontFamily: 'Monaco, monospace'
                   }}
                   value={formData.problemStatement}
                   onChange={(e) => setFormData({...formData, problemStatement: e.target.value})}
@@ -175,15 +184,16 @@ export function PromptBuilderWindow() {
 
             {/* Additional Requirements Field */}
             <div className="flex items-start gap-4">
-              <label className="font-bold text-sm mt-2 w-32 text-right">
+              <label className="font-bold text-sm mt-2 w-36 text-right" style={{ minWidth: '144px' }}>
                 Requirements:
               </label>
               <div className="flex-1">
                 <textarea
-                  className="w-full px-2 py-1.5 bg-white border-2 border-black text-sm font-mono h-16 resize-none"
+                  className="w-full px-3 py-2 bg-white border-2 border-black text-sm font-mono h-20 resize-none"
                   style={{
-                    boxShadow: 'inset -1px -1px 0 white, inset 1px 1px 0 #808080',
-                    outline: 'none'
+                    boxShadow: 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080',
+                    outline: 'none',
+                    fontFamily: 'Monaco, monospace'
                   }}
                   value={formData.additionalRequirements}
                   onChange={(e) => setFormData({...formData, additionalRequirements: e.target.value})}
@@ -193,12 +203,23 @@ export function PromptBuilderWindow() {
             </div>
 
             {/* Buttons */}
-            <div className="flex justify-center gap-3 pt-6">
+            <div className="flex justify-center gap-4 pt-8 pb-4">
               <button
                 onClick={handleReset}
-                className="px-6 py-2 bg-gray-200 font-bold text-sm border-2 border-black hover:bg-gray-300"
+                className="px-8 py-2.5 font-bold text-sm border-2 border-black"
                 style={{
-                  boxShadow: '2px 2px 0 black, inset 1px 1px 0 white, inset -1px -1px 0 #808080',
+                  backgroundColor: '#c0c0c0',
+                  boxShadow: '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080',
+                  fontFamily: 'Chicago, sans-serif'
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.boxShadow = 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080';
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.boxShadow = '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080';
                 }}
               >
                 Clear
@@ -206,15 +227,30 @@ export function PromptBuilderWindow() {
               <button
                 onClick={generatePrompt}
                 disabled={isLoading}
-                className={`px-6 py-2 font-bold text-sm border-2 border-black ${
-                  isLoading
-                    ? 'bg-gray-300 text-gray-500'
-                    : 'bg-white hover:bg-gray-100'
+                className={`px-8 py-2.5 font-bold text-sm border-2 border-black ${
+                  isLoading ? 'opacity-50' : ''
                 }`}
                 style={{
+                  backgroundColor: isLoading ? '#a0a0a0' : '#ffffff',
                   boxShadow: isLoading
-                    ? 'inset -1px -1px 0 white, inset 1px 1px 0 #808080'
-                    : '2px 2px 0 black, inset 1px 1px 0 white, inset -1px -1px 0 #808080',
+                    ? 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080'
+                    : '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080',
+                  fontFamily: 'Chicago, sans-serif'
+                }}
+                onMouseDown={(e) => {
+                  if (!isLoading) {
+                    e.currentTarget.style.boxShadow = 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080';
+                  }
+                }}
+                onMouseUp={(e) => {
+                  if (!isLoading) {
+                    e.currentTarget.style.boxShadow = '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isLoading) {
+                    e.currentTarget.style.boxShadow = '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080';
+                  }
                 }}
               >
                 {isLoading ? 'Generating...' : 'Generate Prompt'}
@@ -223,9 +259,10 @@ export function PromptBuilderWindow() {
 
             {/* Error Message */}
             {error && (
-              <div className="mt-4 p-3 bg-white border-2 border-black text-red-600 text-xs"
+              <div className="mt-4 p-4 bg-white border-2 border-black text-red-600 text-xs"
                 style={{
-                  boxShadow: 'inset -1px -1px 0 white, inset 1px 1px 0 #808080'
+                  boxShadow: 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080',
+                  fontFamily: 'Monaco, monospace'
                 }}>
                 <strong>Error:</strong> {error}
               </div>
@@ -234,23 +271,26 @@ export function PromptBuilderWindow() {
         </div>
 
         {/* Right Panel - Generated Prompt */}
-        <div className="w-1/2 bg-gray-200 p-6 flex flex-col overflow-hidden">
-          <div className="text-center mb-4">
-            <h3 className="text-xl font-bold mb-2">Generated Prompt</h3>
-            <p className="text-xs text-gray-600">
+        <div className="w-1/2 p-8 flex flex-col overflow-hidden" style={{ backgroundColor: '#c0c0c0' }}>
+          <div className="text-center mb-6">
+            <h3 className="text-xl font-bold mb-3" style={{ fontFamily: 'Chicago, sans-serif' }}>
+              Generated Prompt
+            </h3>
+            <p className="text-xs text-gray-700">
               {generatedPrompt ? 'Your Replit prompt is ready!' : 'Prompt will appear here'}
             </p>
           </div>
 
           {/* Output Area */}
-          <div className="flex-1 bg-white border-2 border-black p-4 overflow-auto mb-4 font-mono text-xs"
+          <div className="flex-1 bg-white border-2 border-black p-6 overflow-auto mb-6 font-mono text-xs"
             style={{
-              boxShadow: 'inset -1px -1px 0 white, inset 1px 1px 0 #808080'
+              boxShadow: 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080',
+              fontFamily: 'Monaco, monospace'
             }}>
             {isLoading ? (
               <div className="flex flex-col items-center justify-center h-full">
                 <div className="animate-spin w-8 h-8 border-2 border-black border-t-transparent rounded-full mb-4"></div>
-                <div className="text-center text-gray-600">
+                <div className="text-center text-gray-700">
                   <div className="font-bold mb-2">Processing with Claude...</div>
                   <div className="text-xs">Please wait a moment</div>
                 </div>
@@ -260,12 +300,12 @@ export function PromptBuilderWindow() {
                 {generatedPrompt}
               </pre>
             ) : (
-              <div className="flex items-center justify-center h-full text-gray-500 text-center">
+              <div className="flex items-center justify-center h-full text-gray-600 text-center">
                 <div>
-                  <div className="mb-3">
-                    <FileText size={32} className="mx-auto opacity-50" />
+                  <div className="mb-4">
+                    <FileText size={40} className="mx-auto opacity-40" />
                   </div>
-                  <div>Ready to generate your prompt</div>
+                  <div className="font-bold">Ready to generate your prompt</div>
                   <div className="text-xs mt-2">Fill in the form and click Generate</div>
                 </div>
               </div>
@@ -274,12 +314,23 @@ export function PromptBuilderWindow() {
 
           {/* Action Buttons */}
           {generatedPrompt && (
-            <div className="flex justify-center gap-3">
+            <div className="flex justify-center gap-4">
               <button
                 onClick={copyToClipboard}
-                className="px-6 py-2 bg-white font-bold text-sm border-2 border-black hover:bg-gray-100 flex items-center gap-2"
+                className="px-8 py-2.5 font-bold text-sm border-2 border-black flex items-center gap-2"
                 style={{
-                  boxShadow: '2px 2px 0 black, inset 1px 1px 0 white, inset -1px -1px 0 #808080',
+                  backgroundColor: '#ffffff',
+                  boxShadow: '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080',
+                  fontFamily: 'Chicago, sans-serif'
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.boxShadow = 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080';
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.boxShadow = '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080';
                 }}
               >
                 <Copy size={14} />
@@ -287,9 +338,20 @@ export function PromptBuilderWindow() {
               </button>
               <button
                 onClick={downloadAsFile}
-                className="px-6 py-2 bg-white font-bold text-sm border-2 border-black hover:bg-gray-100 flex items-center gap-2"
+                className="px-8 py-2.5 font-bold text-sm border-2 border-black flex items-center gap-2"
                 style={{
-                  boxShadow: '2px 2px 0 black, inset 1px 1px 0 white, inset -1px -1px 0 #808080',
+                  backgroundColor: '#ffffff',
+                  boxShadow: '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080',
+                  fontFamily: 'Chicago, sans-serif'
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.boxShadow = 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080';
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.boxShadow = '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080';
                 }}
               >
                 <Download size={14} />
