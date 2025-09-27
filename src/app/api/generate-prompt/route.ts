@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Required for static export compatibility
-export const dynamic = 'force-dynamic';
-
 const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY;
 
 export async function POST(request: NextRequest) {
