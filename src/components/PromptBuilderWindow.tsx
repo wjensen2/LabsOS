@@ -88,13 +88,13 @@ export function PromptBuilderWindow() {
       {/* Main container with classic Mac OS styling */}
       <div className="flex-1 flex">
         {/* Left Panel - Form */}
-        <div className="w-1/2 bg-gray-200 border-r-2 border-gray-400 p-6 overflow-y-auto">
+        <div className="w-1/2 bg-gray-200 border-r-4 border-gray-400 p-6 overflow-y-auto">
           <div className="text-center mb-6">
             <h3 className="text-xl font-bold mb-2">Product Requirements</h3>
             <p className="text-xs text-gray-600">Fill in your product details below</p>
           </div>
 
-          <div className="space-y-5">
+          <div className="space-y-8">
             {/* Product Name Field */}
             <div className="flex items-start gap-4">
               <label className="font-bold text-sm mt-2 w-32 text-right">
@@ -193,7 +193,7 @@ export function PromptBuilderWindow() {
             </div>
 
             {/* Buttons */}
-            <div className="flex justify-center gap-3 pt-4">
+            <div className="flex justify-center gap-3 pt-6">
               <button
                 onClick={handleReset}
                 className="px-6 py-2 bg-gray-200 font-bold text-sm border-2 border-black hover:bg-gray-300"
