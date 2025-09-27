@@ -14,6 +14,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Ensure the Spotify callback is available before the SDK loads
+              window.onSpotifyWebPlaybackSDKReady = window.onSpotifyWebPlaybackSDKReady || function() {
+                console.log('Spotify SDK ready, but no handler set yet');
+              };
+            `,
+          }}
+        />
         <script src="https://sdk.scdn.co/spotify-player.js" async></script>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />

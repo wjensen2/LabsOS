@@ -13,11 +13,9 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  experimental: {
-    // Exclude functions directory
-    outputFileTracingExcludes: {
-      '*': ['./functions/**/*'],
-    },
+  // Exclude functions directory from file tracing
+  outputFileTracingExcludes: {
+    '*': ['./functions/**/*'],
   },
 };
 

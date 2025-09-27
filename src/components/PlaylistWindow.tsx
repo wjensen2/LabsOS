@@ -63,10 +63,17 @@ export function PlaylistWindow() {
     const refreshToken = params.get('refresh_token');
     const expiresAt = params.get('expires_at');
 
+    console.log('Auth effect running...');
+    console.log('Hash:', hash);
+    console.log('Access token from URL:', accessToken ? 'found' : 'not found');
+
     // Check for stored token first
     const storedToken = localStorage.getItem('spotify_access_token');
     const tokenExpiry = localStorage.getItem('spotify_token_expiry');
     const now = Date.now();
+
+    console.log('Stored token:', storedToken ? 'found' : 'not found');
+    console.log('Token expiry:', tokenExpiry);
 
     if (accessToken) {
       console.log('Access token found in URL, setting up Spotify...');
@@ -101,6 +108,8 @@ export function PlaylistWindow() {
       localStorage.removeItem('spotify_access_token');
       localStorage.removeItem('spotify_token_expiry');
       localStorage.removeItem('spotify_refresh_token');
+    } else {
+      console.log('No valid authentication found');
     }
 
     function setupPlayer() {

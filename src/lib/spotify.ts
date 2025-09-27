@@ -198,8 +198,11 @@ export class SpotifyService {
       });
     };
 
-    // Set up the callback for when SDK is ready
-    window.onSpotifyWebPlaybackSDKReady = initPlayer;
+    // Ensure the global callback exists before any script loads
+    if (!window.onSpotifyWebPlaybackSDKReady) {
+      console.log('Setting up Spotify SDK ready callback...');
+      window.onSpotifyWebPlaybackSDKReady = initPlayer;
+    }
 
     // If SDK is already loaded, initialize immediately
     if (window.Spotify) {
