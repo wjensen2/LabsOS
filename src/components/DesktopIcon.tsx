@@ -20,30 +20,43 @@ export function DesktopIcon({ icon, label, onClick, x = 100, y = 100 }: DesktopI
   // Handle dragging
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
+      e.preventDefault();
       if (isDragging) {
+        const newX = e.clientX - dragOffset.x;
+        const newY = e.clientY - dragOffset.y;
+
         setPosition({
-          x: Math.max(0, Math.min(window.innerWidth - 80, e.clientX - dragOffset.x)),
-          y: Math.max(0, Math.min(window.innerHeight - 100, e.clientY - dragOffset.y)),
+          x: Math.max(0, Math.min(window.innerWidth - 80, newX)),
+          y: Math.max(0, Math.min(window.innerHeight - 100, newY)),
         });
       }
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (e: MouseEvent) => {
+      e.preventDefault();
       setIsDragging(false);
     };
 
     if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('mousemove', handleMouseMove, { passive: false });
+      document.addEventListener('mouseup', handleMouseUp, { passive: false });
+      // Prevent text selection during drag
+      document.body.style.userSelect = 'none';
+    } else {
+      document.body.style.userSelect = '';
     }
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = '';
     };
   }, [isDragging, dragOffset]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     const currentTime = Date.now();
     const timeDiff = currentTime - clickTime;
 
@@ -55,14 +68,19 @@ export function DesktopIcon({ icon, label, onClick, x = 100, y = 100 }: DesktopI
 
     setClickTime(currentTime);
 
-    if (iconRef.current) {
-      const rect = iconRef.current.getBoundingClientRect();
-      setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
-      setIsDragging(true);
-    }
+    // Start drag after a short delay to differentiate from double-click
+    setTimeout(() => {
+      if (Date.now() - currentTime >= 150) { // Only start drag if no second click happened
+        if (iconRef.current) {
+          const rect = iconRef.current.getBoundingClientRect();
+          setDragOffset({
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top,
+          });
+          setIsDragging(true);
+        }
+      }
+    }, 150);
   };
 
   return (

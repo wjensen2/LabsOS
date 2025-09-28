@@ -36,10 +36,18 @@ export function Window({
   // Handle dragging
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
+      e.preventDefault();
       if (isDragging) {
+        const newX = e.clientX - dragOffset.x;
+        const newY = e.clientY - dragOffset.y;
+
+        // Keep window within viewport bounds
+        const boundedX = Math.max(0, Math.min(window.innerWidth - size.width, newX));
+        const boundedY = Math.max(0, Math.min(window.innerHeight - size.height, newY));
+
         setPosition({
-          x: e.clientX - dragOffset.x,
-          y: e.clientY - dragOffset.y,
+          x: boundedX,
+          y: boundedY,
         });
       }
       if (isResizing) {
@@ -52,23 +60,32 @@ export function Window({
       }
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (e: MouseEvent) => {
+      e.preventDefault();
       setIsDragging(false);
       setIsResizing(false);
     };
 
     if (isDragging || isResizing) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('mousemove', handleMouseMove, { passive: false });
+      document.addEventListener('mouseup', handleMouseUp, { passive: false });
+      // Prevent text selection during drag
+      document.body.style.userSelect = 'none';
+    } else {
+      document.body.style.userSelect = '';
     }
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = '';
     };
-  }, [isDragging, isResizing, dragOffset, resizeStart]);
+  }, [isDragging, isResizing, dragOffset, resizeStart, size.width, size.height]);
 
   const handleTitleBarMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     if (windowRef.current) {
       const rect = windowRef.current.getBoundingClientRect();
       setDragOffset({

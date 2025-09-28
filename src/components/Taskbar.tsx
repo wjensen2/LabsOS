@@ -15,8 +15,10 @@ interface TaskbarProps {
     survey: boolean;
     surveyResults: boolean;
     promptBuilder: boolean;
+    presentation: boolean;
+    runnerGame: boolean;
   };
-  onToggleWindow: (window: 'projects' | 'team' | 'playlist' | 'nora' | 'document' | 'document2' | 'survey' | 'surveyResults' | 'promptBuilder') => void;
+  onToggleWindow: (window: 'projects' | 'team' | 'playlist' | 'nora' | 'document' | 'document2' | 'survey' | 'surveyResults' | 'promptBuilder' | 'presentation' | 'runnerGame') => void;
   useInteractiveBackground: boolean;
   onToggleBackground: () => void;
 }
@@ -78,7 +80,7 @@ export function Taskbar({ activeWindows, onToggleWindow, useInteractiveBackgroun
                 </div>
 
                 {showApplicationsSubmenu && (
-                  <div className="absolute left-full top-0 ml-1 w-48 bg-gray-200 border-2 border-gray-400 shadow-md z-20">
+                  <div className="absolute left-full top-0 ml-1 w-56 max-h-80 overflow-y-auto bg-gray-200 border-2 border-gray-400 shadow-md z-20" style={{ bottom: 'auto', transform: 'translateY(-20px)' }}>
                     <button
                       className="start-menu-item w-full"
                       onClick={() => {
@@ -144,6 +146,28 @@ export function Taskbar({ activeWindows, onToggleWindow, useInteractiveBackgroun
                     >
                       <Image src="/construction.png" alt="" width={16} height={16} />
                       <span>Prompt Builder</span>
+                    </button>
+                    <button
+                      className="start-menu-item w-full"
+                      onClick={() => {
+                        onToggleWindow('presentation');
+                        setIsStartMenuOpen(false);
+                        setShowApplicationsSubmenu(false);
+                      }}
+                    >
+                      <Image src="/slides.png" alt="" width={16} height={16} />
+                      <span>Fountain Summit</span>
+                    </button>
+                    <button
+                      className="start-menu-item w-full"
+                      onClick={() => {
+                        onToggleWindow('runnerGame');
+                        setIsStartMenuOpen(false);
+                        setShowApplicationsSubmenu(false);
+                      }}
+                    >
+                      <Image src="/man.png" alt="" width={16} height={16} />
+                      <span>Fountain Runner</span>
                     </button>
                   </div>
                 )}

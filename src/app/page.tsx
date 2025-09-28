@@ -13,6 +13,8 @@ import { DocumentViewer } from '@/components/DocumentViewer';
 import { PasswordModal } from '@/components/PasswordModal';
 import { SurveyWindow } from '@/components/SurveyWindow';
 import { PromptBuilderWindow } from '@/components/PromptBuilderWindow';
+import { PresentationWindow } from '@/components/PresentationWindow';
+import { RunnerGame } from '@/components/RunnerGame';
 
 export default function Home() {
   const [activeWindows, setActiveWindows] = useState({
@@ -25,6 +27,8 @@ export default function Home() {
     survey: false,
     surveyResults: false,
     promptBuilder: false,
+    presentation: false,
+    runnerGame: false,
   });
 
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -49,14 +53,14 @@ export default function Home() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const toggleWindow = (windowName: 'projects' | 'team' | 'playlist' | 'nora' | 'document' | 'document2' | 'survey' | 'surveyResults' | 'promptBuilder') => {
+  const toggleWindow = (windowName: 'projects' | 'team' | 'playlist' | 'nora' | 'document' | 'document2' | 'survey' | 'surveyResults' | 'promptBuilder' | 'presentation' | 'runnerGame') => {
     setActiveWindows(prev => ({
       ...prev,
       [windowName]: !prev[windowName]
     }));
   };
 
-  const closeWindow = (windowName: 'projects' | 'team' | 'playlist' | 'nora' | 'document' | 'document2' | 'survey' | 'surveyResults' | 'promptBuilder') => {
+  const closeWindow = (windowName: 'projects' | 'team' | 'playlist' | 'nora' | 'document' | 'document2' | 'survey' | 'surveyResults' | 'promptBuilder' | 'presentation' | 'runnerGame') => {
     setActiveWindows(prev => ({
       ...prev,
       [windowName]: false
@@ -169,6 +173,22 @@ export default function Home() {
         onClick={() => toggleWindow('promptBuilder')}
       />
 
+      {/* Presentation Desktop Shortcut */}
+      <DesktopIcon
+        icon={
+          <img
+            src="/slides.png"
+            alt="Fountain Summit Presentation"
+            className="w-8 h-8"
+            style={{ imageRendering: 'pixelated' }}
+          />
+        }
+        label="FOUNTAIN SUMMIT"
+        x={windowSize.width - 180}
+        y={360}
+        onClick={() => toggleWindow('presentation')}
+      />
+
       {/* Windows */}
       <Window
         title="Projects - Fountain Labs"
@@ -266,6 +286,30 @@ export default function Home() {
         height={600}
       >
         <PromptBuilderWindow />
+      </Window>
+
+      <Window
+        title="Fountain Summit Presentation"
+        isVisible={activeWindows.presentation}
+        onClose={() => closeWindow('presentation')}
+        x={120}
+        y={70}
+        width={1000}
+        height={700}
+      >
+        <PresentationWindow />
+      </Window>
+
+      <Window
+        title="Fountain Runner - Easter Egg Game"
+        isVisible={activeWindows.runnerGame}
+        onClose={() => closeWindow('runnerGame')}
+        x={60}
+        y={40}
+        width={900}
+        height={500}
+      >
+        <RunnerGame />
       </Window>
 
       {/* Taskbar */}
