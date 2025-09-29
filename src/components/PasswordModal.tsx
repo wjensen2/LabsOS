@@ -67,7 +67,7 @@ export function PasswordModal({ isVisible, onPasswordCorrect }: PasswordModalPro
           </div>
 
           {/* Terminal-style Input */}
-          <div className="text-left">
+          <form onSubmit={handleSubmit} className="text-left">
             <div className="text-green-400 text-sm mb-2">Password:</div>
             <div className="flex items-center">
               <span className="text-green-400 mr-2">$</span>
@@ -101,7 +101,15 @@ export function PasswordModal({ isVisible, onPasswordCorrect }: PasswordModalPro
               </div>
             </div>
             <div className="h-0.5 bg-green-400 w-96 mt-1"></div>
-          </div>
+
+            {/* Submit Button for Mobile */}
+            <button
+              type="submit"
+              className="mt-4 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-mono rounded border border-green-400 transition-colors md:hidden"
+            >
+              Submit
+            </button>
+          </form>
 
           {/* Error Message */}
           {error && (
