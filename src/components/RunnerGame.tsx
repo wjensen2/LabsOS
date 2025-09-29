@@ -24,7 +24,7 @@ interface LeaderboardEntry {
 
 export function RunnerGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const gameLoopRef = useRef<number>();
+  const gameLoopRef = useRef<number>(0);
   const [playerName, setPlayerName] = useState('');
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
 

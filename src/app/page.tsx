@@ -15,8 +15,11 @@ import { SurveyWindow } from '@/components/SurveyWindow';
 import { PromptBuilderWindow } from '@/components/PromptBuilderWindow';
 import { PresentationWindow } from '@/components/PresentationWindow';
 import { RunnerGame } from '@/components/RunnerGame';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { MobileDesktop } from '@/components/mobile/MobileDesktop';
 
 export default function Home() {
+  const isMobile = useIsMobile();
   const [activeWindows, setActiveWindows] = useState({
     projects: false,
     team: false,
@@ -67,6 +70,20 @@ export default function Home() {
     }));
   };
 
+  // Return mobile view for mobile devices
+  if (isMobile) {
+    return (
+      <>
+        <PasswordModal
+          isVisible={!isAuthenticated}
+          onPasswordCorrect={() => setIsAuthenticated(true)}
+        />
+        {isAuthenticated && <MobileDesktop />}
+      </>
+    );
+  }
+
+  // Return desktop view for desktop devices
   return (
     <>
       <PasswordModal
