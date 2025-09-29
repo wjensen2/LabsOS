@@ -3,6 +3,8 @@
 import { Settings, Folder, HelpCircle, User, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
+import { HelpModal } from './HelpModal';
+import { AboutModal } from './AboutModal';
 
 interface TaskbarProps {
   activeWindows: {
@@ -27,6 +29,8 @@ export function Taskbar({ activeWindows, onToggleWindow, useInteractiveBackgroun
   const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
   const [showApplicationsSubmenu, setShowApplicationsSubmenu] = useState(false);
   const [showDocumentsSubmenu, setShowDocumentsSubmenu] = useState(false);
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
+  const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const startMenuRef = useRef<HTMLDivElement>(null);
 
   // Close start menu when clicking outside
@@ -241,7 +245,13 @@ export function Taskbar({ activeWindows, onToggleWindow, useInteractiveBackgroun
                 <Settings size={16} />
                 <span>{useInteractiveBackground ? 'Gradient Background' : 'Interactive Background'}</span>
               </button>
-              <button className="start-menu-item">
+              <button
+                className="start-menu-item"
+                onClick={() => {
+                  setIsHelpModalOpen(true);
+                  setIsStartMenuOpen(false);
+                }}
+              >
                 <HelpCircle size={16} />
                 <span>Help</span>
               </button>
@@ -249,7 +259,13 @@ export function Taskbar({ activeWindows, onToggleWindow, useInteractiveBackgroun
 
             <div className="start-menu-separator"></div>
 
-            <button className="start-menu-item">
+            <button
+              className="start-menu-item"
+              onClick={() => {
+                setIsAboutModalOpen(true);
+                setIsStartMenuOpen(false);
+              }}
+            >
               <HelpCircle size={16} />
               <span>About Fountain Labs OS</span>
             </button>
@@ -297,6 +313,16 @@ export function Taskbar({ activeWindows, onToggleWindow, useInteractiveBackgroun
           <div>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
         </div>
       </div>
+
+      {/* Modals */}
+      <HelpModal
+        isOpen={isHelpModalOpen}
+        onClose={() => setIsHelpModalOpen(false)}
+      />
+      <AboutModal
+        isOpen={isAboutModalOpen}
+        onClose={() => setIsAboutModalOpen(false)}
+      />
     </div>
   );
 }

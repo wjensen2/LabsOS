@@ -45,7 +45,7 @@ export function PasswordModal({ isVisible, onPasswordCorrect }: PasswordModalPro
         >
           {/* CHRO SUMMIT ASCII Art */}
           <div className="text-orange-500 font-mono text-base leading-tight mb-6 whitespace-pre">
-{`██████╗██╗  ██╗██████╗  ██████╗
+{` ██████╗██╗  ██╗██████╗  ██████╗
 ██╔════╝██║  ██║██╔══██╗██╔═══██╗
 ██║     ███████║██████╔╝██║   ██║
 ██║     ██╔══██║██╔══██╗██║   ██║
@@ -67,7 +67,7 @@ export function PasswordModal({ isVisible, onPasswordCorrect }: PasswordModalPro
           </div>
 
           {/* Terminal-style Input */}
-          <form onSubmit={handleSubmit} className="text-left">
+          <div className="text-left">
             <div className="text-green-400 text-sm mb-2">Password:</div>
             <div className="flex items-center">
               <span className="text-green-400 mr-2">$</span>
@@ -89,13 +89,19 @@ export function PasswordModal({ isVisible, onPasswordCorrect }: PasswordModalPro
                     setPassword(e.target.value);
                     setError('');
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleSubmit(e);
+                    }
+                  }}
                   className="absolute inset-0 opacity-0 bg-transparent border-none outline-none cursor-text w-full"
                   autoFocus
                 />
               </div>
             </div>
             <div className="h-0.5 bg-green-400 w-96 mt-1"></div>
-          </form>
+          </div>
 
           {/* Error Message */}
           {error && (

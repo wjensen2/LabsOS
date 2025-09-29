@@ -1,63 +1,171 @@
 'use client';
 
-import { useState } from 'react';
-import { Play, Fullscreen, Download, Share } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Maximize2, Minimize2, Play, ExternalLink, FileText } from 'lucide-react';
 
-export function MobilePresentation() {
+interface MobilePresentationProps {
+  presentationUrl?: string;
+  title?: string;
+}
+
+export function MobilePresentation({
+  presentationUrl = 'https://docs.google.com/presentation/d/1AWLlADfpqX0AUyehiMFI7TfcWJp60GnmnMxZySfh3mE/embed?start=false&loop=false&delayms=3000',
+  title = 'Fountain Summit Presentation'
+}: MobilePresentationProps) {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  // const [currentSlide, setCurrentSlide] = useState(1); // Future slide navigation
   const [isLoading, setIsLoading] = useState(true);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleFullscreen = () => {
-    const iframe = document.getElementById('presentation-iframe') as HTMLIFrameElement;
-    if (iframe?.requestFullscreen) {
-      iframe.requestFullscreen();
+  // Convert edit URL to embed URL if needed
+  const getEmbedUrl = (url: string) => {
+    if (url.includes('/edit')) {
+      // Convert edit URL to embed URL
+      const presentationId = url.match(/\/d\/([a-zA-Z0-9-_]+)/)?.[1];
+      if (presentationId) {
+        return `https://docs.google.com/presentation/d/${presentationId}/embed?start=false&loop=false&delayms=3000`;
+      }
+    }
+    return url;
+  };
+
+  const embedUrl = getEmbedUrl(presentationUrl);
+
+  // Handle fullscreen
+  const toggleFullscreen = async () => {
+    if (!document.fullscreenElement) {
+      try {
+        await containerRef.current?.requestFullscreen();
+        setIsFullscreen(true);
+      } catch (err) {
+        console.error('Error attempting to enable fullscreen:', err);
+      }
+    } else {
+      try {
+        await document.exitFullscreen();
+        setIsFullscreen(false);
+      } catch (err) {
+        console.error('Error attempting to exit fullscreen:', err);
+      }
+    }
+  };
+
+  // Listen for fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  // Start presentation (opens in presenter mode)
+  const startPresentation = () => {
+    const presentationId = presentationUrl.match(/\/d\/([a-zA-Z0-9-_]+)/)?.[1];
+    if (presentationId) {
+      // Open in presenter mode
+      window.open(
+        `https://docs.google.com/presentation/d/${presentationId}/present`,
+        '_blank',
+        'width=1200,height=800'
+      );
+    }
+  };
+
+  // Open in new tab for editing
+  const openInNewTab = () => {
+    const presentationId = presentationUrl.match(/\/d\/([a-zA-Z0-9-_]+)/)?.[1];
+    if (presentationId) {
+      window.open(
+        `https://docs.google.com/presentation/d/${presentationId}/edit`,
+        '_blank'
+      );
     }
   };
 
   return (
-    <div className="h-full bg-gray-100 flex flex-col">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 p-4">
-        <h2 className="font-semibold text-gray-900 mb-2">Fountain Summit 2024</h2>
-        <p className="text-sm text-gray-600">AI Innovation & Future of Work</p>
-      </div>
-
-      {/* Presentation Viewer */}
-      <div className="flex-1 bg-white m-4 rounded-lg shadow-sm overflow-hidden">
-        <div className="relative h-full">
-          {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
-              <div className="text-center">
-                <div className="animate-spin w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full mx-auto mb-2"></div>
-                <p className="text-sm text-gray-600">Loading presentation...</p>
-              </div>
-            </div>
-          )}
-          <iframe
-            id="presentation-iframe"
-            src="https://docs.google.com/presentation/d/1AWLlADfpqX0AUyehiMFI7TfcWJp60GnmnMxZySfh3mE/embed?start=false&loop=false&delayms=3000"
-            className="w-full h-full border-0"
-            onLoad={() => setIsLoading(false)}
-            allow="fullscreen"
-          />
+    <div
+      ref={containerRef}
+      className={`h-full flex flex-col bg-gray-900 ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}
+    >
+      {/* Toolbar */}
+      <div className="bg-gray-800 border-b border-gray-700 px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <FileText size={16} className="text-gray-400" />
+          <span className="text-sm font-medium text-white">{title}</span>
         </div>
-      </div>
 
-      {/* Controls */}
-      <div className="bg-white border-t border-gray-200 p-4">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="flex items-center gap-2">
+          {/* Start Presentation Button */}
           <button
-            onClick={handleFullscreen}
-            className="flex items-center justify-center gap-2 py-3 bg-purple-600 text-white rounded-lg font-medium"
+            onClick={startPresentation}
+            className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded flex items-center gap-2 transition-colors"
+            title="Start Presentation (Opens in presenter mode)"
           >
-            <Fullscreen size={16} />
-            Fullscreen
+            <Play size={14} />
+            Present
           </button>
-          <button className="flex items-center justify-center gap-2 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium">
-            <Share size={16} />
-            Share
+
+          {/* Open in New Tab */}
+          <button
+            onClick={openInNewTab}
+            className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded flex items-center gap-2 transition-colors"
+            title="Open in Google Slides"
+          >
+            <ExternalLink size={14} />
+            Edit
+          </button>
+
+          {/* Fullscreen Toggle */}
+          <button
+            onClick={toggleFullscreen}
+            className="px-3 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm font-bold rounded flex items-center gap-2 transition-colors"
+            title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+          >
+            {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+            {isFullscreen ? 'Exit' : 'Full'}
           </button>
         </div>
       </div>
+
+      {/* Presentation Embed */}
+      <div className="flex-1 relative bg-black">
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
+            <div className="text-center">
+              <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full mb-4 mx-auto"></div>
+              <p className="text-gray-400 text-sm">Loading presentation...</p>
+            </div>
+          </div>
+        )}
+
+        <iframe
+          ref={iframeRef}
+          src={embedUrl}
+          width="100%"
+          height="100%"
+          frameBorder="0"
+          allowFullScreen
+          onLoad={() => setIsLoading(false)}
+          className={`${isLoading ? 'invisible' : 'visible'}`}
+          style={{
+            background: 'white'
+          }}
+        />
+      </div>
+
+      {/* Status Bar */}
+      {!isFullscreen && (
+        <div className="bg-gray-800 border-t border-gray-700 px-4 py-2 flex items-center justify-between text-xs text-gray-400">
+          <span>Google Slides Presentation</span>
+          <div className="flex items-center gap-4">
+            <span>Use arrow keys to navigate</span>
+            <span>Tap buttons above for controls</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

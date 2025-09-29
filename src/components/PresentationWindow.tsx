@@ -13,7 +13,7 @@ export function PresentationWindow({
   title = 'Fountain Summit Presentation'
 }: PresentationWindowProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(1);
+  // const [currentSlide, setCurrentSlide] = useState(1); // Future slide navigation
   const [isLoading, setIsLoading] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);

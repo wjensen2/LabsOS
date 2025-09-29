@@ -88,7 +88,7 @@ export function PromptBuilderWindow() {
       {/* Main container with classic Mac OS styling */}
       <div className="flex-1 flex">
         {/* Left Panel - Form */}
-        <div className="w-1/2 border-r-4 border-gray-500 p-8 overflow-y-auto" style={{
+        <div className="w-1/2 border-r-4 border-gray-500 p-10 overflow-y-auto" style={{
           backgroundColor: '#c0c0c0',
           borderRightColor: '#808080'
         }}>
@@ -259,7 +259,7 @@ export function PromptBuilderWindow() {
 
             {/* Error Message */}
             {error && (
-              <div className="mt-4 p-4 bg-white border-2 border-black text-red-600 text-xs"
+              <div className="mt-4 p-6 bg-white border-2 border-black text-red-600 text-xs"
                 style={{
                   boxShadow: 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080',
                   fontFamily: 'Monaco, monospace'
@@ -271,7 +271,7 @@ export function PromptBuilderWindow() {
         </div>
 
         {/* Right Panel - Generated Prompt */}
-        <div className="w-1/2 p-8 flex flex-col overflow-hidden" style={{ backgroundColor: '#c0c0c0' }}>
+        <div className="w-1/2 p-10 flex flex-col overflow-hidden" style={{ backgroundColor: '#c0c0c0' }}>
           <div className="text-center mb-6">
             <h3 className="text-xl font-bold mb-3" style={{ fontFamily: 'Chicago, sans-serif' }}>
               Generated Prompt
@@ -282,7 +282,7 @@ export function PromptBuilderWindow() {
           </div>
 
           {/* Output Area */}
-          <div className="flex-1 bg-white border-2 border-black p-6 overflow-auto mb-6 font-mono text-xs"
+          <div className="flex-1 bg-white border-2 border-black p-8 overflow-auto mb-6 font-mono text-xs"
             style={{
               boxShadow: 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080',
               fontFamily: 'Monaco, monospace'

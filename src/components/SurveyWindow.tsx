@@ -6,7 +6,7 @@ interface SurveyWindowProps {
   onOpenFullResults?: () => void;
 }
 
-export function SurveyWindow({ onOpenFullResults }: SurveyWindowProps) {
+export function SurveyWindow({}: SurveyWindowProps) {
   return (
     <div className="h-full flex flex-col bg-gray-100">
       {/* Title */}

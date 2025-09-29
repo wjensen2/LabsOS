@@ -14,14 +14,17 @@ export function DesktopIcon({ icon, label, onClick, x = 100, y = 100 }: DesktopI
   const [position, setPosition] = useState({ x, y });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [clickTime, setClickTime] = useState(0);
+  const [lastClickTime, setLastClickTime] = useState(0);
+  const [dragStartPosition, setDragStartPosition] = useState({ x: 0, y: 0 });
   const iconRef = useRef<HTMLDivElement>(null);
+  const dragThreshold = 5; // pixels to move before considering it a drag
+  const holdTime = 150; // ms to hold before drag starts
 
-  // Handle dragging
+  // Handle mouse movement during drag
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      e.preventDefault();
       if (isDragging) {
+        e.preventDefault();
         const newX = e.clientX - dragOffset.x;
         const newY = e.clientY - dragOffset.y;
 
@@ -32,25 +35,24 @@ export function DesktopIcon({ icon, label, onClick, x = 100, y = 100 }: DesktopI
       }
     };
 
-    const handleMouseUp = (e: MouseEvent) => {
-      e.preventDefault();
-      setIsDragging(false);
+    const handleMouseUp = () => {
+      if (isDragging) {
+        setIsDragging(false);
+        document.body.style.userSelect = '';
+      }
     };
 
     if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove, { passive: false });
-      document.addEventListener('mouseup', handleMouseUp, { passive: false });
-      // Prevent text selection during drag
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
       document.body.style.userSelect = 'none';
-    } else {
-      document.body.style.userSelect = '';
-    }
 
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.userSelect = '';
-    };
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        document.body.style.userSelect = '';
+      };
+    }
   }, [isDragging, dragOffset]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -58,29 +60,56 @@ export function DesktopIcon({ icon, label, onClick, x = 100, y = 100 }: DesktopI
     e.stopPropagation();
 
     const currentTime = Date.now();
-    const timeDiff = currentTime - clickTime;
+    const timeDiff = currentTime - lastClickTime;
 
-    // Double-click detection (within 300ms)
-    if (timeDiff < 300) {
+    // Check for double-click first (within 400ms)
+    if (timeDiff < 400) {
       onClick();
+      setLastClickTime(0); // Reset to prevent triple-click
       return;
     }
 
-    setClickTime(currentTime);
+    // Set up for potential drag
+    setLastClickTime(currentTime);
+    setDragStartPosition({ x: e.clientX, y: e.clientY });
 
-    // Start drag after a short delay to differentiate from double-click
-    setTimeout(() => {
-      if (Date.now() - currentTime >= 150) { // Only start drag if no second click happened
-        if (iconRef.current) {
-          const rect = iconRef.current.getBoundingClientRect();
-          setDragOffset({
-            x: e.clientX - rect.left,
-            y: e.clientY - rect.top,
-          });
-          setIsDragging(true);
-        }
+    if (iconRef.current) {
+      const rect = iconRef.current.getBoundingClientRect();
+      setDragOffset({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      });
+    }
+
+    // Set up drag detection after hold time
+    const startDragTimer = setTimeout(() => {
+      setIsDragging(true);
+    }, holdTime);
+
+    // Mouse move handler for early drag detection
+    const handleEarlyMouseMove = (e: MouseEvent) => {
+      const moveDistance = Math.sqrt(
+        Math.pow(e.clientX - dragStartPosition.x, 2) +
+        Math.pow(e.clientY - dragStartPosition.y, 2)
+      );
+
+      // If user moves more than threshold, start drag immediately
+      if (moveDistance > dragThreshold) {
+        clearTimeout(startDragTimer);
+        setIsDragging(true);
+        document.removeEventListener('mousemove', handleEarlyMouseMove);
       }
-    }, 150);
+    };
+
+    // Mouse up handler to cancel drag if released too early
+    const handleEarlyMouseUp = () => {
+      clearTimeout(startDragTimer);
+      document.removeEventListener('mousemove', handleEarlyMouseMove);
+      document.removeEventListener('mouseup', handleEarlyMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleEarlyMouseMove);
+    document.addEventListener('mouseup', handleEarlyMouseUp);
   };
 
   return (
@@ -90,7 +119,9 @@ export function DesktopIcon({ icon, label, onClick, x = 100, y = 100 }: DesktopI
       style={{
         left: position.x,
         top: position.y,
-        cursor: isDragging ? 'grabbing' : 'pointer'
+        cursor: isDragging ? 'grabbing' : 'pointer',
+        position: 'absolute',
+        userSelect: 'none'
       }}
       onMouseDown={handleMouseDown}
     >

@@ -1,115 +1,184 @@
 'use client';
 
-import { useState } from 'react';
-import { Folder, Star, Clock, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, ChevronDown, ChevronRight } from 'lucide-react';
 
 interface Project {
   id: string;
   name: string;
-  status: 'active' | 'completed' | 'upcoming';
-  lastUpdated: string;
-  starred: boolean;
+  description: string;
   progress: number;
+  status: 'active' | 'completed' | 'on-hold';
+  dueDate?: string;
+  details?: string;
 }
 
-const projects: Project[] = [
-  { id: '1', name: 'Fountain AI Platform', status: 'active', lastUpdated: '2 hours ago', starred: true, progress: 75 },
-  { id: '2', name: 'Agent Systems', status: 'active', lastUpdated: '1 day ago', starred: true, progress: 60 },
-  { id: '3', name: 'Nora AI Assistant', status: 'completed', lastUpdated: '1 week ago', starred: false, progress: 100 },
-  { id: '4', name: 'Workforce Analytics', status: 'active', lastUpdated: '3 days ago', starred: false, progress: 45 },
-  { id: '5', name: 'Mobile Experience', status: 'upcoming', lastUpdated: 'Not started', starred: false, progress: 0 },
+const mockProjects: Project[] = [
+  {
+    id: '1',
+    name: 'Vintage Web Portal',
+    description: 'Creating a 90s-style team dashboard',
+    progress: 75,
+    status: 'active'
+  },
+  {
+    id: '2',
+    name: 'AI Assistant Integration',
+    description: 'Adding Founty to team workflows',
+    progress: 40,
+    status: 'active'
+  },
+  {
+    id: '3',
+    name: 'Music Sync Platform',
+    description: 'Spotify playlist integration system',
+    progress: 15,
+    status: 'active'
+  }
 ];
 
 export function MobileProjects() {
-  const [selectedTab, setSelectedTab] = useState<'all' | 'active' | 'starred'>('all');
+  const [projects, setProjects] = useState<Project[]>(mockProjects);
+  const [loading, setLoading] = useState(false);
+  const [showSuggestionForm, setShowSuggestionForm] = useState(false);
+  const [suggestion, setSuggestion] = useState('');
+  const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
 
-  const filteredProjects = projects.filter(project => {
-    if (selectedTab === 'starred') return project.starred;
-    if (selectedTab === 'active') return project.status === 'active';
-    return true;
-  });
+  useEffect(() => {
+    fetchProjects();
+  }, []);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-500';
-      case 'completed': return 'bg-blue-500';
-      case 'upcoming': return 'bg-yellow-500';
-      default: return 'bg-gray-500';
+  const fetchProjects = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/projects');
+      if (response.ok) {
+        const notionProjects = await response.json();
+        setProjects(notionProjects);
+      } else {
+        console.warn('Failed to fetch from Notion, using mock data');
+      }
+    } catch (error) {
+      console.warn('Error fetching projects, using mock data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleExpanded = (projectId: string) => {
+    const newExpanded = new Set(expandedProjects);
+    if (newExpanded.has(projectId)) {
+      newExpanded.delete(projectId);
+    } else {
+      newExpanded.add(projectId);
+    }
+    setExpandedProjects(newExpanded);
+  };
+
+  const handleSubmitSuggestion = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (suggestion.trim()) {
+      alert(`Project suggestion submitted: ${suggestion}`);
+      setSuggestion('');
+      setShowSuggestionForm(false);
     }
   };
 
   return (
-    <div className="h-full bg-white">
-      {/* Tabs */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="flex justify-around p-2">
-          {(['all', 'active', 'starred'] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setSelectedTab(tab)}
-              className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
-                selectedTab === tab
-                  ? 'bg-purple-100 text-purple-700'
-                  : 'text-gray-600'
-              }`}
-            >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
-          ))}
-        </div>
+    <div className="h-full bg-white flex flex-col p-4">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="font-bold text-lg">Current Projects</h2>
+        <button
+          className="bg-gray-200 hover:bg-gray-300 border border-gray-400 px-3 py-2 rounded flex items-center gap-2"
+          onClick={() => setShowSuggestionForm(!showSuggestionForm)}
+        >
+          <Plus size={16} />
+          Suggest
+        </button>
       </div>
 
-      {/* Projects List */}
-      <div className="p-4 space-y-3">
-        {filteredProjects.map((project) => (
-          <div
-            key={project.id}
-            className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm active:shadow-lg transition-all"
-          >
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <Folder size={16} className="text-purple-600" />
-                  <h3 className="font-semibold text-gray-900">{project.name}</h3>
-                </div>
-                <div className="flex items-center gap-3 text-xs text-gray-500">
-                  <span className={`px-2 py-1 rounded-full text-white ${getStatusColor(project.status)}`}>
-                    {project.status}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock size={12} />
-                    {project.lastUpdated}
-                  </span>
-                </div>
-              </div>
-              <button className="p-2">
-                <Star
-                  size={20}
-                  className={project.starred ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}
-                />
+      {showSuggestionForm && (
+        <div className="mb-4 p-4 border border-gray-400 bg-gray-100 rounded">
+          <form onSubmit={handleSubmitSuggestion}>
+            <label className="block text-sm mb-2 font-medium">Project Suggestion:</label>
+            <input
+              type="text"
+              value={suggestion}
+              onChange={(e) => setSuggestion(e.target.value)}
+              className="w-full p-2 border border-gray-400 text-sm rounded"
+              placeholder="Enter your project idea..."
+            />
+            <div className="flex gap-2 mt-3">
+              <button type="submit" className="bg-gray-200 hover:bg-gray-300 border border-gray-400 px-3 py-2 rounded text-sm">Submit</button>
+              <button
+                type="button"
+                className="bg-gray-200 hover:bg-gray-300 border border-gray-400 px-3 py-2 rounded text-sm"
+                onClick={() => setShowSuggestionForm(false)}
+              >
+                Cancel
               </button>
             </div>
+          </form>
+        </div>
+      )}
 
-            {/* Progress Bar */}
-            <div className="mt-3">
-              <div className="flex justify-between text-xs text-gray-600 mb-1">
-                <span>Progress</span>
-                <span>{project.progress}%</span>
+      <div className="flex-1 overflow-auto">
+        {loading && <div className="text-sm text-gray-500 p-3">Loading projects...</div>}
+        {projects.map((project) => {
+          const isExpanded = expandedProjects.has(project.id);
+          return (
+            <div key={project.id} className="mb-4 p-4 border border-gray-400 bg-white rounded shadow-sm">
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex items-start gap-2 flex-1">
+                  {project.details && (
+                    <button
+                      onClick={() => toggleExpanded(project.id)}
+                      className="text-gray-600 hover:text-gray-800 mt-1"
+                    >
+                      {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                    </button>
+                  )}
+                  <div className="flex-1">
+                    <h3 className="font-bold text-sm">{project.name}</h3>
+                    {project.dueDate && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        Due: {new Date(project.dueDate).toLocaleDateString()}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <span className={`text-xs px-2 py-1 rounded ${
+                  project.status === 'active' ? 'bg-green-200' :
+                  project.status === 'completed' ? 'bg-blue-200' :
+                  'bg-yellow-200'
+                }`}>
+                  {project.status}
+                </span>
               </div>
-              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-300"
-                  style={{ width: `${project.progress}%` }}
-                />
+              <p className="text-sm text-gray-600 mb-3">{project.description}</p>
+
+              {isExpanded && project.details && (
+                <div className="mb-3 p-3 bg-gray-50 border border-gray-200 text-sm rounded">
+                  <div className="font-semibold mb-2">Details:</div>
+                  <div className="text-gray-700">{project.details}</div>
+                </div>
+              )}
+
+              <div className="mb-2">
+                <div className="flex justify-between text-sm mb-2">
+                  <span>Progress</span>
+                  <span>{project.progress}%</span>
+                </div>
+                <div className="w-full bg-gray-200 h-2 rounded">
+                  <div
+                    className="bg-blue-500 h-2 rounded transition-all duration-300"
+                    style={{ width: `${project.progress}%` }}
+                  />
+                </div>
               </div>
             </div>
-
-            <button className="mt-3 w-full flex items-center justify-between text-sm text-purple-600 font-medium">
-              <span>View Details</span>
-              <ChevronRight size={16} />
-            </button>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

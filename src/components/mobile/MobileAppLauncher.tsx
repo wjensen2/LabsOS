@@ -11,15 +11,16 @@ interface AppConfig {
 }
 
 const apps: AppConfig[] = [
-  { id: 'projects', name: 'Projects', icon: '/projects.png', color: 'bg-blue-500' },
-  { id: 'team', name: 'Team', icon: '/team.png', color: 'bg-green-500' },
-  { id: 'playlist', name: 'Music', icon: '/musical-score.png', color: 'bg-pink-500' },
-  { id: 'nora', name: 'Nora AI', icon: '/astronaut.png', color: 'bg-purple-500' },
-  { id: 'survey', name: 'Survey', icon: '/bar-chart.png', color: 'bg-yellow-500' },
-  { id: 'promptBuilder', name: 'Prompt', icon: '/construction.png', color: 'bg-orange-500' },
-  { id: 'presentation', name: 'Summit', icon: '/slides.png', color: 'bg-indigo-500' },
-  { id: 'runnerGame', name: 'Runner', icon: '/man.png', color: 'bg-red-500' },
-  { id: 'document', name: 'Docs', icon: '/document.png', color: 'bg-gray-500' },
+  { id: 'projects', name: 'Projects', icon: '/projects.png', color: 'bg-white/10' },
+  { id: 'team', name: 'Team', icon: '/team.png', color: 'bg-white/10' },
+  { id: 'playlist', name: 'Music', icon: '/musical-score.png', color: 'bg-white/10' },
+  { id: 'nora', name: 'Nora AI', icon: '/astronaut.png', color: 'bg-white/10' },
+  { id: 'document', name: 'Fountain OS', icon: '/document.png', color: 'bg-white/10' },
+  { id: 'document2', name: 'Agentic AI', icon: '/document.png', color: 'bg-white/10' },
+  { id: 'survey', name: 'Summit Survey', icon: '/bar-chart.png', color: 'bg-white/10' },
+  { id: 'promptBuilder', name: 'Prompt Builder', icon: '/construction.png', color: 'bg-white/10' },
+  { id: 'presentation', name: 'Fountain Summit', icon: '/slides.png', color: 'bg-white/10' },
+  { id: 'runnerGame', name: 'Runner Game', icon: '/man.png', color: 'bg-white/10' },
 ];
 
 interface MobileAppLauncherProps {
@@ -40,7 +41,7 @@ export function MobileAppLauncher({ onAppLaunch }: MobileAppLauncherProps) {
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-white mb-2 drop-shadow-lg">
-          CHAO SUMMIT
+          CHRO SUMMIT
         </h1>
         <p className="text-white/80 text-sm">FOUNTAIN LABS OS</p>
       </div>
@@ -61,9 +62,9 @@ export function MobileAppLauncher({ onAppLaunch }: MobileAppLauncherProps) {
                 <Image
                   src={app.icon}
                   alt={app.name}
-                  width={32}
-                  height={32}
-                  className="filter brightness-0 invert"
+                  width={40}
+                  height={40}
+                  style={{ imageRendering: 'pixelated' }}
                 />
               </div>
               <span className="text-white text-xs font-medium drop-shadow">

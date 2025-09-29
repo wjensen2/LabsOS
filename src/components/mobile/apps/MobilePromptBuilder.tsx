@@ -1,225 +1,354 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Copy, Save, Play, Zap } from 'lucide-react';
-
-interface PromptTemplate {
-  id: string;
-  name: string;
-  category: string;
-  prompt: string;
-  variables: string[];
-}
-
-const templates: PromptTemplate[] = [
-  {
-    id: '1',
-    name: 'Code Review',
-    category: 'Development',
-    prompt: 'Please review this {{language}} code for:\n- Code quality and best practices\n- Performance issues\n- Security vulnerabilities\n\nCode:\n{{code}}',
-    variables: ['language', 'code']
-  },
-  {
-    id: '2',
-    name: 'Email Draft',
-    category: 'Communication',
-    prompt: 'Write a professional email about {{topic}} to {{recipient}}. The tone should be {{tone}} and include:\n- {{key_points}}',
-    variables: ['topic', 'recipient', 'tone', 'key_points']
-  },
-  {
-    id: '3',
-    name: 'Meeting Summary',
-    category: 'Productivity',
-    prompt: 'Summarize this meeting transcript:\n\n{{transcript}}\n\nInclude:\n- Key decisions made\n- Action items\n- Next steps',
-    variables: ['transcript']
-  }
-];
+import { Copy, Download, FileText } from 'lucide-react';
 
 export function MobilePromptBuilder() {
-  const [activeTab, setActiveTab] = useState<'templates' | 'builder'>('templates');
-  const [selectedTemplate, setSelectedTemplate] = useState<PromptTemplate | null>(null);
-  const [customPrompt, setCustomPrompt] = useState('');
-  const [variables, setVariables] = useState<Record<string, string>>({});
+  const [formData, setFormData] = useState({
+    productName: '',
+    productVision: '',
+    targetAudience: '',
+    problemStatement: '',
+    additionalRequirements: ''
+  });
 
-  const fillTemplate = (template: PromptTemplate) => {
-    let filledPrompt = template.prompt;
-    Object.entries(variables).forEach(([key, value]) => {
-      filledPrompt = filledPrompt.replace(new RegExp(`{{${key}}}`, 'g'), value);
-    });
-    return filledPrompt;
+  const [generatedPrompt, setGeneratedPrompt] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const generatePrompt = async () => {
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/generate-prompt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (!response.ok) {
+        let errorMessage = 'Failed to generate prompt';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.details || errorData.error || errorMessage;
+        } catch {
+          errorMessage = `Server error: ${response.status} ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      if (!data || !data.prompt) {
+        throw new Error('Invalid response from server - no prompt generated');
+      }
+
+      setGeneratedPrompt(data.prompt);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred while generating the prompt';
+      setError(errorMessage);
+      console.error('Error generating prompt:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const extractVariables = (prompt: string) => {
-    const matches = prompt.match(/{{([^}]+)}}/g);
-    return matches ? matches.map(match => match.slice(2, -2)) : [];
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(generatedPrompt);
+  };
+
+  const downloadAsFile = () => {
+    const blob = new Blob([generatedPrompt], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${formData.productName || 'prompt'}_replit_prompt.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleReset = () => {
+    setFormData({
+      productName: '',
+      productVision: '',
+      targetAudience: '',
+      problemStatement: '',
+      additionalRequirements: ''
+    });
+    setGeneratedPrompt('');
+    setError('');
   };
 
   return (
-    <div className="h-full bg-white flex flex-col">
-      {/* Tabs */}
-      <div className="bg-gray-50 border-b border-gray-200">
-        <div className="flex">
-          {[
-            { id: 'templates', label: 'Templates', icon: Save },
-            { id: 'builder', label: 'Builder', icon: Zap }
-          ].map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => setActiveTab(id as any)}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 font-medium ${
-                activeTab === id
-                  ? 'text-purple-600 border-b-2 border-purple-600'
-                  : 'text-gray-600'
-              }`}
-            >
-              <Icon size={16} />
-              {label}
-            </button>
-          ))}
+    <div className="h-full flex flex-col bg-gray-200 font-sans overflow-hidden" style={{ backgroundColor: '#c0c0c0' }}>
+      {/* Main container with classic Mac OS styling */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <div className="text-center p-4 border-b-2 border-gray-500" style={{ borderBottomColor: '#808080' }}>
+          <h3 className="text-lg font-bold mb-2" style={{ fontFamily: 'Chicago, sans-serif' }}>
+            Product Requirements
+          </h3>
+          <p className="text-xs text-gray-700">Fill in your product details below</p>
         </div>
-      </div>
 
-      {activeTab === 'templates' && (
-        <div className="flex-1 overflow-y-auto">
-          {selectedTemplate ? (
-            <div className="p-4">
-              <div className="mb-4">
-                <button
-                  onClick={() => setSelectedTemplate(null)}
-                  className="text-purple-600 text-sm font-medium"
-                >
-                  ← Back to Templates
-                </button>
-                <h2 className="text-lg font-semibold mt-2">{selectedTemplate.name}</h2>
-                <span className="text-sm text-gray-500">{selectedTemplate.category}</span>
+        {/* Form Section */}
+        <div className="flex-1 p-4 overflow-y-auto" style={{ backgroundColor: '#c0c0c0' }}>
+          <div className="space-y-4">
+            {/* Product Name Field */}
+            <div>
+              <label className="block font-bold text-sm mb-2">
+                Product Name:
+              </label>
+              <input
+                type="text"
+                className="w-full px-3 py-2 bg-white border-2 border-black text-sm font-mono"
+                style={{
+                  boxShadow: 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080',
+                  outline: 'none',
+                  fontFamily: 'Monaco, monospace'
+                }}
+                value={formData.productName}
+                onChange={(e) => setFormData({...formData, productName: e.target.value})}
+                placeholder="e.g., Interview Prep Assistant"
+              />
+            </div>
+
+            {/* Product Vision Field */}
+            <div>
+              <label className="block font-bold text-sm mb-2">
+                Product Vision:
+              </label>
+              <textarea
+                className="w-full px-3 py-2 bg-white border-2 border-black text-sm font-mono h-20 resize-none"
+                style={{
+                  boxShadow: 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080',
+                  outline: 'none',
+                  fontFamily: 'Monaco, monospace'
+                }}
+                value={formData.productVision}
+                onChange={(e) => setFormData({...formData, productVision: e.target.value})}
+                placeholder="What does your product help users accomplish?"
+              />
+            </div>
+
+            {/* Target Audience Field */}
+            <div>
+              <label className="block font-bold text-sm mb-2">
+                Target Audience:
+              </label>
+              <input
+                type="text"
+                className="w-full px-3 py-2 bg-white border-2 border-black text-sm font-mono"
+                style={{
+                  boxShadow: 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080',
+                  outline: 'none',
+                  fontFamily: 'Monaco, monospace'
+                }}
+                value={formData.targetAudience}
+                onChange={(e) => setFormData({...formData, targetAudience: e.target.value})}
+                placeholder="e.g., students, businesses"
+              />
+            </div>
+
+            {/* Problem Statement Field */}
+            <div>
+              <label className="block font-bold text-sm mb-2">
+                Problem Statement:
+              </label>
+              <textarea
+                className="w-full px-3 py-2 bg-white border-2 border-black text-sm font-mono h-20 resize-none"
+                style={{
+                  boxShadow: 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080',
+                  outline: 'none',
+                  fontFamily: 'Monaco, monospace'
+                }}
+                value={formData.problemStatement}
+                onChange={(e) => setFormData({...formData, problemStatement: e.target.value})}
+                placeholder="What problem does this solve?"
+              />
+            </div>
+
+            {/* Additional Requirements Field */}
+            <div>
+              <label className="block font-bold text-sm mb-2">
+                Requirements:
+              </label>
+              <textarea
+                className="w-full px-3 py-2 bg-white border-2 border-black text-sm font-mono h-16 resize-none"
+                style={{
+                  boxShadow: 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080',
+                  outline: 'none',
+                  fontFamily: 'Monaco, monospace'
+                }}
+                value={formData.additionalRequirements}
+                onChange={(e) => setFormData({...formData, additionalRequirements: e.target.value})}
+                placeholder="Specific features or integrations"
+              />
+            </div>
+
+            {/* Buttons */}
+            <div className="flex gap-3 pt-4">
+              <button
+                onClick={handleReset}
+                className="flex-1 py-2 font-bold text-sm border-2 border-black"
+                style={{
+                  backgroundColor: '#c0c0c0',
+                  boxShadow: '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080',
+                  fontFamily: 'Chicago, sans-serif'
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.boxShadow = 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080';
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.boxShadow = '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080';
+                }}
+              >
+                Clear
+              </button>
+              <button
+                onClick={generatePrompt}
+                disabled={isLoading}
+                className={`flex-1 py-2 font-bold text-sm border-2 border-black ${
+                  isLoading ? 'opacity-50' : ''
+                }`}
+                style={{
+                  backgroundColor: isLoading ? '#a0a0a0' : '#ffffff',
+                  boxShadow: isLoading
+                    ? 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080'
+                    : '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080',
+                  fontFamily: 'Chicago, sans-serif'
+                }}
+                onMouseDown={(e) => {
+                  if (!isLoading) {
+                    e.currentTarget.style.boxShadow = 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080';
+                  }
+                }}
+                onMouseUp={(e) => {
+                  if (!isLoading) {
+                    e.currentTarget.style.boxShadow = '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isLoading) {
+                    e.currentTarget.style.boxShadow = '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080';
+                  }
+                }}
+              >
+                {isLoading ? 'Generating...' : 'Generate Prompt'}
+              </button>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="mt-4 p-3 bg-white border-2 border-black text-red-600 text-xs"
+                style={{
+                  boxShadow: 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080',
+                  fontFamily: 'Monaco, monospace'
+                }}>
+                <strong>Error:</strong> {error}
               </div>
+            )}
+          </div>
+        </div>
 
-              {/* Variables */}
-              <div className="space-y-3 mb-4">
-                {selectedTemplate.variables.map((variable) => (
-                  <div key={variable}>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {variable.replace('_', ' ').toUpperCase()}
-                    </label>
-                    <textarea
-                      value={variables[variable] || ''}
-                      onChange={(e) => setVariables(prev => ({
-                        ...prev,
-                        [variable]: e.target.value
-                      }))}
-                      className="w-full p-2 border border-gray-300 rounded-lg text-sm resize-none"
-                      rows={2}
-                      placeholder={`Enter ${variable}...`}
-                    />
-                  </div>
-                ))}
-              </div>
+        {/* Generated Prompt Section */}
+        <div className="border-t-2 border-gray-500 p-4" style={{ borderTopColor: '#808080', backgroundColor: '#c0c0c0' }}>
+          <div className="text-center mb-3">
+            <h3 className="text-lg font-bold mb-2" style={{ fontFamily: 'Chicago, sans-serif' }}>
+              Generated Prompt
+            </h3>
+            <p className="text-xs text-gray-700">
+              {generatedPrompt ? 'Your Replit prompt is ready!' : 'Prompt will appear here'}
+            </p>
+          </div>
 
-              {/* Preview */}
-              <div className="mb-4">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">Preview</h3>
-                <div className="p-3 bg-gray-50 rounded-lg text-sm whitespace-pre-wrap">
-                  {fillTemplate(selectedTemplate)}
+          {/* Output Area */}
+          <div className="bg-white border-2 border-black p-4 mb-4 h-32 overflow-auto font-mono text-xs"
+            style={{
+              boxShadow: 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080',
+              fontFamily: 'Monaco, monospace'
+            }}>
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center h-full">
+                <div className="animate-spin w-6 h-6 border-2 border-black border-t-transparent rounded-full mb-2"></div>
+                <div className="text-center text-gray-700">
+                  <div className="font-bold mb-1">Processing with Claude...</div>
+                  <div className="text-xs">Please wait a moment</div>
                 </div>
               </div>
-
-              {/* Actions */}
-              <div className="flex gap-2">
-                <button
-                  onClick={() => navigator.clipboard.writeText(fillTemplate(selectedTemplate))}
-                  className="flex-1 flex items-center justify-center gap-2 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium"
-                >
-                  <Copy size={16} />
-                  Copy
-                </button>
-                <button className="flex-1 flex items-center justify-center gap-2 py-2 bg-green-600 text-white rounded-lg text-sm font-medium">
-                  <Play size={16} />
-                  Run
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="p-4">
-              <div className="grid gap-3">
-                {templates.map((template) => (
-                  <button
-                    key={template.id}
-                    onClick={() => setSelectedTemplate(template)}
-                    className="p-4 bg-white border border-gray-200 rounded-lg text-left shadow-sm active:shadow-md transition-all"
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-medium text-gray-900">{template.name}</h3>
-                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                        {template.category}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600 line-clamp-2">
-                      {template.prompt.substring(0, 100)}...
-                    </p>
-                    <div className="flex gap-1 mt-2">
-                      {template.variables.slice(0, 3).map((variable) => (
-                        <span key={variable} className="text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded">
-                          {variable}
-                        </span>
-                      ))}
-                      {template.variables.length > 3 && (
-                        <span className="text-xs text-gray-500">+{template.variables.length - 3}</span>
-                      )}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {activeTab === 'builder' && (
-        <div className="flex-1 p-4">
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Build Your Prompt
-            </label>
-            <textarea
-              value={customPrompt}
-              onChange={(e) => setCustomPrompt(e.target.value)}
-              className="w-full h-40 p-3 border border-gray-300 rounded-lg resize-none"
-              placeholder="Write your prompt here... Use {{variable}} for dynamic content."
-            />
-          </div>
-
-          {/* Detected Variables */}
-          {extractVariables(customPrompt).length > 0 && (
-            <div className="mb-4">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Variables Detected</h3>
-              <div className="space-y-2">
-                {extractVariables(customPrompt).map((variable) => (
-                  <div key={variable}>
-                    <label className="block text-xs text-gray-600 mb-1">{variable}</label>
-                    <input
-                      type="text"
-                      className="w-full p-2 border border-gray-300 rounded text-sm"
-                      placeholder={`Enter ${variable}...`}
-                    />
+            ) : generatedPrompt ? (
+              <pre className="whitespace-pre-wrap text-black leading-relaxed text-xs">
+                {generatedPrompt}
+              </pre>
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-600 text-center">
+                <div>
+                  <div className="mb-2">
+                    <FileText size={24} className="mx-auto opacity-40" />
                   </div>
-                ))}
+                  <div className="font-bold text-xs">Ready to generate your prompt</div>
+                  <div className="text-xs mt-1">Fill in the form and click Generate</div>
+                </div>
               </div>
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          {generatedPrompt && (
+            <div className="flex gap-3">
+              <button
+                onClick={copyToClipboard}
+                className="flex-1 py-2 font-bold text-sm border-2 border-black flex items-center justify-center gap-2"
+                style={{
+                  backgroundColor: '#ffffff',
+                  boxShadow: '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080',
+                  fontFamily: 'Chicago, sans-serif'
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.boxShadow = 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080';
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.boxShadow = '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080';
+                }}
+              >
+                <Copy size={12} />
+                Copy
+              </button>
+              <button
+                onClick={downloadAsFile}
+                className="flex-1 py-2 font-bold text-sm border-2 border-black flex items-center justify-center gap-2"
+                style={{
+                  backgroundColor: '#ffffff',
+                  boxShadow: '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080',
+                  fontFamily: 'Chicago, sans-serif'
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.boxShadow = 'inset -2px -2px 0 #ffffff, inset 2px 2px 0 #808080';
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.boxShadow = '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = '3px 3px 0 #000000, inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080';
+                }}
+              >
+                <Download size={12} />
+                Save
+              </button>
             </div>
           )}
-
-          {/* Quick Actions */}
-          <div className="space-y-2">
-            <button className="w-full flex items-center justify-center gap-2 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium">
-              <Save size={16} />
-              Save as Template
-            </button>
-            <button className="w-full flex items-center justify-center gap-2 py-2 bg-green-600 text-white rounded-lg text-sm font-medium">
-              <Play size={16} />
-              Test Prompt
-            </button>
-          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

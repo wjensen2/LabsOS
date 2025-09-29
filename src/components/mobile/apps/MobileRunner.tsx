@@ -1,262 +1,399 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { Trophy, RotateCcw, Play } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+
+interface GameState {
+  isPlaying: boolean;
+  isGameOver: boolean;
+  score: number;
+  playerY: number;
+  playerVelocityY: number;
+  isJumping: boolean;
+  isHoldingJump: boolean;
+  jumpHoldTime: number;
+  obstacles: Array<{ x: number; y: number; id: number }>;
+  collisions: number;
+  showLeaderboard: boolean;
+  showNameInput: boolean;
+}
+
+interface LeaderboardEntry {
+  name: string;
+  score: number;
+}
 
 export function MobileRunner() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [gameState, setGameState] = useState<'menu' | 'playing' | 'gameOver'>('menu');
-  const [score, setScore] = useState(0);
-  const [highScore, setHighScore] = useState(0);
-  const [lives, setLives] = useState(3);
+  const gameLoopRef = useRef<number>(0);
+  const [playerName, setPlayerName] = useState('');
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
 
+  const [gameState, setGameState] = useState<GameState>({
+    isPlaying: false,
+    isGameOver: false,
+    score: 0,
+    playerY: 200,
+    playerVelocityY: 0,
+    isJumping: false,
+    isHoldingJump: false,
+    jumpHoldTime: 0,
+    obstacles: [],
+    collisions: 0,
+    showLeaderboard: false,
+    showNameInput: false,
+  });
+
+  // Game constants
+  const GRAVITY = 0.8;
+  const MIN_JUMP_FORCE = -8;
+  const MAX_JUMP_FORCE = -18;
+  const MAX_JUMP_HOLD_TIME = 15; // frames
+  const GROUND_Y = 200;
+  const PLAYER_X = 80;
+  const PLAYER_SIZE = 20;
+  const OBSTACLE_WIDTH = 15;
+  const OBSTACLE_HEIGHT = 20;
+  const GAME_SPEED = 3;
+  const INITIAL_OBSTACLE_CHANCE = 0.008; // Start with less frequent obstacles
+  const MAX_OBSTACLE_CHANCE = 0.025; // Maximum obstacle frequency
+
+  // Load leaderboard from localStorage
   useEffect(() => {
-    const savedHighScore = localStorage.getItem('fountain-runner-highscore');
-    if (savedHighScore) {
-      setHighScore(parseInt(savedHighScore));
+    const saved = localStorage.getItem('fountain-runner-leaderboard');
+    if (saved) {
+      setLeaderboard(JSON.parse(saved));
     }
   }, []);
 
-  useEffect(() => {
-    if (gameState !== 'playing') return;
+  // Save leaderboard to localStorage
+  const saveLeaderboard = useCallback((newLeaderboard: LeaderboardEntry[]) => {
+    localStorage.setItem('fountain-runner-leaderboard', JSON.stringify(newLeaderboard));
+    setLeaderboard(newLeaderboard);
+  }, []);
 
+  // Handle jump input with variable height
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.key === 'ArrowUp' || e.key === ' ') && gameState.isPlaying && !gameState.isGameOver && !e.repeat) {
+        e.preventDefault();
+        setGameState(prev => {
+          if (prev.playerY >= GROUND_Y - 5 && !prev.isHoldingJump) { // Only start jump if on ground and not already holding
+            // For very quick taps, apply minimum jump immediately
+            const quickJumpForce = MIN_JUMP_FORCE + (MAX_JUMP_FORCE - MIN_JUMP_FORCE) * 0.3; // 30% of max jump
+            return {
+              ...prev,
+              isHoldingJump: true,
+              jumpHoldTime: 0,
+              isJumping: true,
+              playerVelocityY: quickJumpForce, // Apply immediate jump force
+            };
+          }
+          return prev;
+        });
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if ((e.key === 'ArrowUp' || e.key === ' ') && gameState.isPlaying && !gameState.isGameOver) {
+        e.preventDefault();
+        setGameState(prev => {
+          if (prev.isHoldingJump) {
+            // If held for longer, apply additional jump force
+            if (prev.jumpHoldTime > 5) { // Only boost if held for more than 5 frames
+              const holdRatio = Math.min(prev.jumpHoldTime / MAX_JUMP_HOLD_TIME, 1);
+              const additionalForce = (MAX_JUMP_FORCE - MIN_JUMP_FORCE) * holdRatio * 0.7; // 70% additional force
+
+              return {
+                ...prev,
+                playerVelocityY: prev.playerVelocityY + additionalForce,
+                isHoldingJump: false,
+                jumpHoldTime: 0,
+              };
+            }
+
+            return {
+              ...prev,
+              isHoldingJump: false,
+              jumpHoldTime: 0,
+            };
+          }
+          return prev;
+        });
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [gameState.isPlaying, gameState.isGameOver]);
+
+  // Game loop
+  useEffect(() => {
+    if (!gameState.isPlaying || gameState.isGameOver) return;
+
+    const gameLoop = () => {
+      setGameState(prev => {
+        const newState = { ...prev };
+
+        // Update jump hold time if holding jump
+        if (newState.isHoldingJump && newState.jumpHoldTime < MAX_JUMP_HOLD_TIME) {
+          newState.jumpHoldTime += 1;
+        }
+
+        // Update player physics
+        newState.playerVelocityY += GRAVITY;
+        newState.playerY += newState.playerVelocityY;
+
+        // Ground collision
+        if (newState.playerY >= GROUND_Y) {
+          newState.playerY = GROUND_Y;
+          newState.playerVelocityY = 0;
+          newState.isJumping = false;
+
+          // If we're still holding jump and hit ground, reset to allow new jump
+          if (newState.isHoldingJump) {
+            newState.isHoldingJump = false;
+            newState.jumpHoldTime = 0;
+          }
+        }
+
+        // Update score
+        newState.score += 1;
+
+        // Progressive difficulty: obstacle frequency increases with score
+        const difficultyProgress = Math.min(newState.score / 5000, 1); // Reach max difficulty at score 5000
+        const currentObstacleChance = INITIAL_OBSTACLE_CHANCE + (MAX_OBSTACLE_CHANCE - INITIAL_OBSTACLE_CHANCE) * difficultyProgress;
+
+        // Generate obstacles with progressive difficulty
+        if (Math.random() < currentObstacleChance) {
+          newState.obstacles.push({
+            x: 800,
+            y: GROUND_Y + PLAYER_SIZE, // Position bottles on the ground level
+            id: Date.now() + Math.random(),
+          });
+        }
+
+        // Update obstacles
+        newState.obstacles = newState.obstacles
+          .map(obstacle => ({ ...obstacle, x: obstacle.x - GAME_SPEED }))
+          .filter(obstacle => obstacle.x > -OBSTACLE_WIDTH);
+
+        // Collision detection
+        newState.obstacles.forEach(obstacle => {
+          const playerLeft = PLAYER_X;
+          const playerRight = PLAYER_X + PLAYER_SIZE;
+          const playerTop = newState.playerY;
+          const playerBottom = newState.playerY + PLAYER_SIZE;
+
+          const obstacleLeft = obstacle.x;
+          const obstacleRight = obstacle.x + OBSTACLE_WIDTH;
+          const obstacleTop = obstacle.y - OBSTACLE_HEIGHT; // Top of bottle
+          const obstacleBottom = obstacle.y; // Bottom of bottle (on ground)
+
+          if (
+            playerRight > obstacleLeft &&
+            playerLeft < obstacleRight &&
+            playerBottom > obstacleTop &&
+            playerTop < obstacleBottom
+          ) {
+            newState.collisions += 1;
+            // Remove the collided obstacle
+            newState.obstacles = newState.obstacles.filter(obs => obs.id !== obstacle.id);
+
+            if (newState.collisions >= 3) {
+              newState.isGameOver = true;
+              newState.showNameInput = true;
+            }
+          }
+        });
+
+        return newState;
+      });
+
+      gameLoopRef.current = requestAnimationFrame(gameLoop);
+    };
+
+    gameLoopRef.current = requestAnimationFrame(gameLoop);
+
+    return () => {
+      if (gameLoopRef.current) {
+        cancelAnimationFrame(gameLoopRef.current);
+      }
+    };
+  }, [gameState.isPlaying, gameState.isGameOver]);
+
+  // Render game
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas size
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    // Clear canvas
+    ctx.fillStyle = '#87CEEB'; // Sky blue
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const GROUND_Y = canvas.height - 80;
-    const PLAYER_SIZE = 30;
-    const OBSTACLE_WIDTH = 20;
-    const OBSTACLE_HEIGHT = 40;
+    // Draw ground
+    ctx.fillStyle = '#228B22';
+    ctx.fillRect(0, GROUND_Y + PLAYER_SIZE, canvas.width, canvas.height - GROUND_Y - PLAYER_SIZE);
 
-    let player = {
-      x: 50,
-      y: GROUND_Y - PLAYER_SIZE,
-      velocityY: 0,
-      isJumping: false,
-      jumpForce: 0
-    };
+    if (gameState.isPlaying) {
+      // Draw player (simple pixelated character)
+      ctx.fillStyle = '#FF6B6B';
+      ctx.fillRect(PLAYER_X, gameState.playerY, PLAYER_SIZE, PLAYER_SIZE);
 
-    let obstacles: Array<{ x: number; y: number }> = [];
-    let gameScore = 0;
-    let gameLives = 3;
-    let lastObstacleTime = 0;
-    let gameSpeed = 2;
+      // Player face
+      ctx.fillStyle = '#000';
+      ctx.fillRect(PLAYER_X + 5, gameState.playerY + 5, 3, 3);
+      ctx.fillRect(PLAYER_X + 12, gameState.playerY + 5, 3, 3);
+      ctx.fillRect(PLAYER_X + 7, gameState.playerY + 12, 6, 2);
 
-    const gravity = 0.8;
-    const jumpPower = -15;
-
-    let keys: Record<string, boolean> = {};
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      keys[e.code] = true;
-      if ((e.code === 'Space' || e.code === 'ArrowUp') && !player.isJumping) {
-        player.velocityY = jumpPower;
-        player.isJumping = true;
-      }
-    };
-
-    const handleKeyUp = (e: KeyboardEvent) => {
-      keys[e.code] = false;
-    };
-
-    const handleTouchStart = (e: TouchEvent) => {
-      e.preventDefault();
-      if (!player.isJumping) {
-        player.velocityY = jumpPower;
-        player.isJumping = true;
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-    canvas.addEventListener('touchstart', handleTouchStart);
-
-    function gameLoop() {
-      if (gameState !== 'playing') return;
-
-      // Clear canvas
-      ctx!.fillStyle = '#87CEEB';
-      ctx!.fillRect(0, 0, canvas!.width, canvas!.height);
-
-      // Draw ground
-      ctx!.fillStyle = '#90EE90';
-      ctx!.fillRect(0, GROUND_Y, canvas!.width, canvas!.height - GROUND_Y);
-
-      // Update player
-      player.velocityY += gravity;
-      player.y += player.velocityY;
-
-      if (player.y >= GROUND_Y - PLAYER_SIZE) {
-        player.y = GROUND_Y - PLAYER_SIZE;
-        player.velocityY = 0;
-        player.isJumping = false;
-      }
-
-      // Draw player
-      ctx!.fillStyle = '#FF6B6B';
-      ctx!.fillRect(player.x, player.y, PLAYER_SIZE, PLAYER_SIZE);
-
-      // Spawn obstacles
-      const currentTime = Date.now();
-      if (currentTime - lastObstacleTime > 2000 - (gameScore * 10)) {
-        obstacles.push({
-          x: canvas!.width,
-          y: GROUND_Y - OBSTACLE_HEIGHT
-        });
-        lastObstacleTime = currentTime;
-      }
-
-      // Update and draw obstacles
-      obstacles = obstacles.filter(obstacle => {
-        obstacle.x -= gameSpeed + Math.floor(gameScore / 100);
-
-        ctx!.fillStyle = '#8B4513';
-        ctx!.fillRect(obstacle.x, obstacle.y, OBSTACLE_WIDTH, OBSTACLE_HEIGHT);
-
-        // Collision detection
-        if (
-          player.x < obstacle.x + OBSTACLE_WIDTH &&
-          player.x + PLAYER_SIZE > obstacle.x &&
-          player.y < obstacle.y + OBSTACLE_HEIGHT &&
-          player.y + PLAYER_SIZE > obstacle.y
-        ) {
-          gameLives--;
-          setLives(gameLives);
-          if (gameLives <= 0) {
-            setGameState('gameOver');
-            if (gameScore > highScore) {
-              setHighScore(gameScore);
-              localStorage.setItem('fountain-runner-highscore', gameScore.toString());
-            }
-            return;
-          }
-          return obstacle.x > -OBSTACLE_WIDTH;
-        }
-
-        return obstacle.x > -OBSTACLE_WIDTH;
+      // Draw obstacles (wine bottles)
+      ctx.fillStyle = '#8B4513';
+      gameState.obstacles.forEach(obstacle => {
+        // Bottle body
+        ctx.fillRect(obstacle.x, obstacle.y - OBSTACLE_HEIGHT, OBSTACLE_WIDTH, OBSTACLE_HEIGHT);
+        // Bottle neck
+        ctx.fillRect(obstacle.x + 4, obstacle.y - OBSTACLE_HEIGHT - 5, 7, 5);
+        // Label
+        ctx.fillStyle = '#FFF';
+        ctx.fillRect(obstacle.x + 2, obstacle.y - 15, 11, 8);
+        ctx.fillStyle = '#8B4513';
       });
-
-      // Update score
-      gameScore++;
-      setScore(gameScore);
-
-      // Draw UI
-      ctx!.fillStyle = 'white';
-      ctx!.font = '16px Arial';
-      ctx!.fillText(`Score: ${gameScore}`, 10, 30);
-      ctx!.fillText(`Lives: ${gameLives}`, 10, 50);
-
-      requestAnimationFrame(gameLoop);
     }
 
-    gameLoop();
+    // Draw UI
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 16px monospace';
+    ctx.fillText(`Score: ${gameState.score}`, 10, 30);
+    ctx.fillText(`Lives: ${3 - gameState.collisions}`, 10, 50);
 
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-      canvas.removeEventListener('touchstart', handleTouchStart);
-    };
-  }, [gameState, highScore]);
+    if (!gameState.isPlaying && !gameState.isGameOver) {
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 24px monospace';
+      ctx.fillText('FOUNTAIN RUNNER', canvas.width / 2 - 120, canvas.height / 2 - 40);
+      ctx.font = '16px monospace';
+      ctx.fillText('Press SPACE or UP arrow to jump over wine bottles!', canvas.width / 2 - 200, canvas.height / 2);
+      ctx.fillText('Avoid 3 collisions to keep running!', canvas.width / 2 - 140, canvas.height / 2 + 20);
+    }
+
+  }, [gameState]);
 
   const startGame = () => {
-    setGameState('playing');
-    setScore(0);
-    setLives(3);
+    setGameState({
+      isPlaying: true,
+      isGameOver: false,
+      score: 0,
+      playerY: GROUND_Y,
+      playerVelocityY: 0,
+      isJumping: false,
+      isHoldingJump: false,
+      jumpHoldTime: 0,
+      obstacles: [],
+      collisions: 0,
+      showLeaderboard: false,
+      showNameInput: false,
+    });
   };
 
-  const resetGame = () => {
-    setGameState('menu');
-    setScore(0);
-    setLives(3);
+  const restartGame = () => {
+    startGame();
   };
 
-  if (gameState === 'menu') {
-    return (
-      <div className="h-full bg-gradient-to-b from-blue-400 to-green-400 flex items-center justify-center p-6">
-        <div className="text-center text-white">
-          <h1 className="text-3xl font-bold mb-2">🏃‍♂️</h1>
-          <h2 className="text-2xl font-bold mb-4">Fountain Runner</h2>
-          <p className="mb-6">Tap to jump over wine bottles!</p>
+  const submitScore = () => {
+    if (playerName.length === 3) {
+      const newEntry = { name: playerName.toUpperCase(), score: gameState.score };
+      const newLeaderboard = [...leaderboard, newEntry]
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 10);
 
-          <div className="bg-white/20 rounded-lg p-4 mb-6">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Trophy size={20} />
-              <span className="font-semibold">High Score</span>
-            </div>
-            <div className="text-2xl font-bold">{highScore}</div>
-          </div>
+      saveLeaderboard(newLeaderboard);
+      setPlayerName('');
+      setGameState(prev => ({
+        ...prev,
+        showNameInput: false,
+        showLeaderboard: true,
+      }));
+    }
+  };
 
-          <button
-            onClick={startGame}
-            className="flex items-center justify-center gap-2 bg-white text-blue-600 px-8 py-3 rounded-lg font-bold text-lg mx-auto"
-          >
-            <Play size={20} />
-            Start Game
-          </button>
-        </div>
-      </div>
-    );
-  }
+  return (
+    <div className="h-full flex flex-col bg-black text-white font-mono">
+      <div className="flex-1 flex flex-col items-center justify-center p-4">
+        <canvas
+          ref={canvasRef}
+          width={800}
+          height={300}
+          className="border-2 border-gray-400 bg-sky-200"
+          style={{ imageRendering: 'pixelated' }}
+        />
 
-  if (gameState === 'gameOver') {
-    return (
-      <div className="h-full bg-gradient-to-b from-red-400 to-orange-400 flex items-center justify-center p-6">
-        <div className="text-center text-white">
-          <h2 className="text-3xl font-bold mb-4">Game Over!</h2>
-          <div className="bg-white/20 rounded-lg p-4 mb-4">
-            <div className="text-lg mb-2">Final Score</div>
-            <div className="text-3xl font-bold">{score}</div>
-          </div>
+        <div className="mt-4 flex flex-col items-center gap-4">
+          {!gameState.isPlaying && !gameState.isGameOver && (
+            <button
+              onClick={startGame}
+              className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded"
+            >
+              START GAME
+            </button>
+          )}
 
-          {score > highScore && (
-            <div className="bg-yellow-400 text-yellow-900 rounded-lg p-3 mb-4">
-              🎉 New High Score! 🎉
+          {gameState.isGameOver && gameState.showNameInput && (
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-4 text-red-400">GAME OVER!</h2>
+              <p className="mb-4">Final Score: {gameState.score}</p>
+              <p className="mb-2">Enter your initials (3 characters):</p>
+              <input
+                type="text"
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value.slice(0, 3).toUpperCase())}
+                className="px-3 py-2 bg-gray-800 border border-gray-600 text-white text-center text-xl font-bold w-20 mr-2"
+                maxLength={3}
+                autoFocus
+              />
+              <button
+                onClick={submitScore}
+                disabled={playerName.length !== 3}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-bold rounded"
+              >
+                SUBMIT
+              </button>
             </div>
           )}
 
-          <div className="space-y-3">
-            <button
-              onClick={startGame}
-              className="w-full flex items-center justify-center gap-2 bg-white text-red-600 px-6 py-3 rounded-lg font-bold"
-            >
-              <Play size={16} />
-              Try Again
-            </button>
-            <button
-              onClick={resetGame}
-              className="w-full flex items-center justify-center gap-2 bg-white/20 text-white px-6 py-3 rounded-lg font-bold"
-            >
-              <RotateCcw size={16} />
-              Main Menu
-            </button>
-          </div>
+          {gameState.showLeaderboard && (
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-4 text-yellow-400">TOP 10 LEADERBOARD</h2>
+              <div className="bg-gray-800 p-4 rounded border-2 border-gray-600 min-w-64">
+                {leaderboard.map((entry, index) => (
+                  <div key={index} className="flex justify-between py-1">
+                    <span>{index + 1}. {entry.name}</span>
+                    <span>{entry.score}</span>
+                  </div>
+                ))}
+                {leaderboard.length === 0 && (
+                  <p className="text-gray-400">No scores yet!</p>
+                )}
+              </div>
+              <button
+                onClick={restartGame}
+                className="mt-4 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded"
+              >
+                PLAY AGAIN
+              </button>
+            </div>
+          )}
         </div>
-      </div>
-    );
-  }
 
-  return (
-    <div className="h-full bg-black flex flex-col">
-      <div className="flex-1 relative">
-        <canvas
-          ref={canvasRef}
-          className="w-full h-full touch-none"
-          style={{ touchAction: 'none' }}
-        />
-        <div className="absolute top-4 right-4 text-white text-sm">
-          <div>Score: {score}</div>
-          <div>Lives: {lives}</div>
+        <div className="mt-4 text-center text-sm text-gray-400">
+          <p>HOLD UP ARROW or SPACEBAR for higher jumps</p>
+          <p>Tap quickly for small hops • Hold longer for big jumps</p>
+          <p>Avoid wine bottles • 3 hits = Game Over</p>
         </div>
-      </div>
-      <div className="bg-gray-800 text-white p-4 text-center text-sm">
-        Tap screen or press SPACE to jump
       </div>
     </div>
   );
