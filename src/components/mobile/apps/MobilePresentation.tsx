@@ -1,36 +1,20 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Maximize2, Minimize2, Play, ExternalLink, FileText } from 'lucide-react';
+import { Maximize2, Minimize2, Download, ExternalLink, FileText } from 'lucide-react';
 
 interface MobilePresentationProps {
-  presentationUrl?: string;
+  pdfUrl?: string;
   title?: string;
 }
 
 export function MobilePresentation({
-  presentationUrl = 'https://docs.google.com/presentation/d/1AWLlADfpqX0AUyehiMFI7TfcWJp60GnmnMxZySfh3mE/embed?start=false&loop=false&delayms=3000',
+  pdfUrl = '/AI Delivering Outcomes [CHRO Summit 2025].pdf',
   title = 'Fountain Summit Presentation'
 }: MobilePresentationProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
-  // const [currentSlide, setCurrentSlide] = useState(1); // Future slide navigation
   const [isLoading, setIsLoading] = useState(true);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // Convert edit URL to embed URL if needed
-  const getEmbedUrl = (url: string) => {
-    if (url.includes('/edit')) {
-      // Convert edit URL to embed URL
-      const presentationId = url.match(/\/d\/([a-zA-Z0-9-_]+)/)?.[1];
-      if (presentationId) {
-        return `https://docs.google.com/presentation/d/${presentationId}/embed?start=false&loop=false&delayms=3000`;
-      }
-    }
-    return url;
-  };
-
-  const embedUrl = getEmbedUrl(presentationUrl);
 
   // Handle fullscreen
   const toggleFullscreen = async () => {
@@ -61,28 +45,19 @@ export function MobilePresentation({
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
-  // Start presentation (opens in presenter mode)
-  const startPresentation = () => {
-    const presentationId = presentationUrl.match(/\/d\/([a-zA-Z0-9-_]+)/)?.[1];
-    if (presentationId) {
-      // Open in presenter mode
-      window.open(
-        `https://docs.google.com/presentation/d/${presentationId}/present`,
-        '_blank',
-        'width=1200,height=800'
-      );
-    }
+  // Download PDF
+  const downloadPdf = () => {
+    const link = document.createElement('a');
+    link.href = pdfUrl;
+    link.download = 'AI Delivering Outcomes [CHRO Summit 2025].pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
-  // Open in new tab for editing
+  // Open PDF in new tab
   const openInNewTab = () => {
-    const presentationId = presentationUrl.match(/\/d\/([a-zA-Z0-9-_]+)/)?.[1];
-    if (presentationId) {
-      window.open(
-        `https://docs.google.com/presentation/d/${presentationId}/edit`,
-        '_blank'
-      );
-    }
+    window.open(pdfUrl, '_blank');
   };
 
   return (
@@ -98,24 +73,24 @@ export function MobilePresentation({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Start Presentation Button */}
+          {/* Download PDF Button */}
           <button
-            onClick={startPresentation}
+            onClick={downloadPdf}
             className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded flex items-center gap-2 transition-colors"
-            title="Start Presentation (Opens in presenter mode)"
+            title="Download PDF"
           >
-            <Play size={14} />
-            Present
+            <Download size={14} />
+            Download
           </button>
 
           {/* Open in New Tab */}
           <button
             onClick={openInNewTab}
             className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded flex items-center gap-2 transition-colors"
-            title="Open in Google Slides"
+            title="Open PDF in new tab"
           >
             <ExternalLink size={14} />
-            Edit
+            Open
           </button>
 
           {/* Fullscreen Toggle */}
@@ -130,7 +105,7 @@ export function MobilePresentation({
         </div>
       </div>
 
-      {/* Presentation Embed */}
+      {/* PDF Viewer */}
       <div className="flex-1 relative bg-black">
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
@@ -142,12 +117,10 @@ export function MobilePresentation({
         )}
 
         <iframe
-          ref={iframeRef}
-          src={embedUrl}
+          src={pdfUrl}
           width="100%"
           height="100%"
           frameBorder="0"
-          allowFullScreen
           onLoad={() => setIsLoading(false)}
           className={`${isLoading ? 'invisible' : 'visible'}`}
           style={{
@@ -159,9 +132,9 @@ export function MobilePresentation({
       {/* Status Bar */}
       {!isFullscreen && (
         <div className="bg-gray-800 border-t border-gray-700 px-4 py-2 flex items-center justify-between text-xs text-gray-400">
-          <span>Google Slides Presentation</span>
+          <span>PDF Presentation</span>
           <div className="flex items-center gap-4">
-            <span>Use arrow keys to navigate</span>
+            <span>Use mouse wheel to zoom</span>
             <span>Tap buttons above for controls</span>
           </div>
         </div>

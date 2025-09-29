@@ -54,6 +54,14 @@ const teamMembers: TeamMember[] = [
     status: 'online',
     avatar: '/tiger.png',
   },
+  {
+    id: '6',
+    name: 'Bella',
+    role: 'Operations',
+    email: 'bella.ramirez@fountain.com',
+    status: 'online',
+    avatar: '/dolphin.png',
+  },
 ];
 
 export function TeamWindow() {
