@@ -127,28 +127,24 @@ export function Window({
         >
           {/* Title Bar */}
           <div
-            className="window-title-bar flex items-center justify-between cursor-grab active:cursor-grabbing"
+            className="window-title-bar cursor-grab active:cursor-grabbing"
             onMouseDown={handleTitleBarMouseDown}
           >
-            <span className="text-white font-bold select-none">{title}</span>
-            <div className="flex gap-1">
-              <button className="w-4 h-4 bg-gray-300 border border-gray-400 flex items-center justify-center text-xs hover:bg-gray-200">
-                <Minus size={8} />
-              </button>
-              <button className="w-4 h-4 bg-gray-300 border border-gray-400 flex items-center justify-center text-xs hover:bg-gray-200">
-                <Square size={6} />
-              </button>
+            {/* Close Button */}
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
               <button
                 onClick={onClose}
-                className="w-4 h-4 bg-gray-300 border border-gray-400 flex items-center justify-center text-xs hover:bg-gray-200"
+                className="w-4 h-4 bg-red-500 hover:bg-red-600 border border-red-700 rounded-sm flex items-center justify-center transition-colors"
+                title="Close"
               >
-                <X size={8} />
+                <X size={10} color="white" strokeWidth={3} />
               </button>
             </div>
+            <span className="font-bold select-none text-sm">{title}</span>
           </div>
 
           {/* Content Area */}
-          <div className="px-8 py-6 h-full overflow-auto" style={{ height: `calc(100% - 24px)` }}>
+          <div className="px-8 py-6 h-full overflow-auto" style={{ height: `calc(100% - 28px)` }}>
             {children}
           </div>
 

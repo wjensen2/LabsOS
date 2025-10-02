@@ -10,7 +10,6 @@ import { DesktopIcon } from '@/components/DesktopIcon';
 import { BrowserWindow } from '@/components/BrowserWindow';
 import { BackgroundBoxes } from '@/components/BackgroundBoxes';
 import { DocumentViewer } from '@/components/DocumentViewer';
-import { PasswordModal } from '@/components/PasswordModal';
 import { SurveyWindow } from '@/components/SurveyWindow';
 import { PromptBuilderWindow } from '@/components/PromptBuilderWindow';
 import { PresentationWindow } from '@/components/PresentationWindow';
@@ -37,7 +36,6 @@ export default function Home() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [windowSize, setWindowSize] = useState({ width: 1200, height: 800 });
   const [useInteractiveBackground, setUseInteractiveBackground] = useState(false); // Default to gradient
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -72,25 +70,12 @@ export default function Home() {
 
   // Return mobile view for mobile devices
   if (isMobile) {
-    return (
-      <>
-        <PasswordModal
-          isVisible={!isAuthenticated}
-          onPasswordCorrect={() => setIsAuthenticated(true)}
-        />
-        {isAuthenticated && <MobileDesktop />}
-      </>
-    );
+    return <MobileDesktop />;
   }
 
   // Return desktop view for desktop devices
   return (
     <>
-      <PasswordModal
-        isVisible={!isAuthenticated}
-        onPasswordCorrect={() => setIsAuthenticated(true)}
-      />
-
       <div className="desktop">
       {/* Interactive Background */}
       {useInteractiveBackground && (
@@ -99,21 +84,14 @@ export default function Home() {
         </div>
       )}
       {/* Desktop Icon Area */}
-      <div className="absolute top-4 left-4 desktop-title">
+      <div className="absolute top-8 left-8 desktop-title">
         <div className="ascii-title mb-6">
-{` ██████╗██╗  ██╗██████╗  ██████╗
-██╔════╝██║  ██║██╔══██╗██╔═══██╗
-██║     ███████║██████╔╝██║   ██║
-██║     ██╔══██║██╔══██╗██║   ██║
-╚██████╗██║  ██║██║  ██║╚██████╔╝
- ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝
-
-███████╗██╗   ██╗███╗   ███╗███╗   ███╗██╗████████╗
-██╔════╝██║   ██║████╗ ████║████╗ ████║██║╚══██╔══╝
-███████╗██║   ██║██╔████╔██║██╔████╔██║██║   ██║
-╚════██║██║   ██║██║╚██╔╝██║██║╚██╔╝██║██║   ██║
-███████║╚██████╔╝██║ ╚═╝ ██║██║ ╚═╝ ██║██║   ██║
-╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝     ╚═╝╚═╝   ╚═╝   `}
+{`██╗      █████╗ ██████╗ ███████╗     ██████╗ ███████╗
+██║     ██╔══██╗██╔══██╗██╔════╝    ██╔═══██╗██╔════╝
+██║     ███████║██████╔╝███████╗    ██║   ██║███████╗
+██║     ██╔══██║██╔══██╗╚════██║    ██║   ██║╚════██║
+███████╗██║  ██║██████╔╝███████║    ╚██████╔╝███████║
+╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝     ╚═════╝ ╚══════╝`}
         </div>
         <div className="text-white pixel-font">
           FOUNTAIN LABS

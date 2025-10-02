@@ -1,14 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --retro-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --window-bg: #c0c0c0;
-  --window-border: #808080;
-  --window-border-light: #dfdfdf;
-  --window-border-dark: #404040;
-  --taskbar-bg: #c0c0c0;
-  --button-bg: #c0c0c0;
+  --retro-bg: linear-gradient(135deg, #4A90E2 0%, #2E5C8A 100%);
+  --window-bg: #EBEBEB;
+  --window-border: #B4B4B4;
+  --window-border-light: #FFFFFF;
+  --window-border-dark: #7A7A7A;
+  --taskbar-bg: #DCDCDC;
+  --button-bg: #EBEBEB;
   --text-color: #000000;
+  --macos-blue: #0055D4;
+  --macos-window-close: #ED6A5E;
+  --macos-window-minimize: #F4BF4F;
+  --macos-window-maximize: #61C554;
 }
 
 * {
@@ -18,10 +22,10 @@
 }
 
 html, body {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: linear-gradient(135deg, #4A90E2 0%, #2E5C8A 100%) !important;
   background-attachment: fixed !important;
   color: var(--text-color);
-  font-family: 'MS Sans Serif', sans-serif;
+  font-family: 'Chicago', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -41,8 +45,8 @@ html, body {
   font-weight: bold;
   line-height: 1.0;
   letter-spacing: 1px;
-  color: #FF8C00 !important;
-  text-shadow: 1px 1px 0px rgba(0,0,0,0.5);
+  color: #7FFF7F !important;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
   white-space: pre;
 }
 
@@ -51,18 +55,19 @@ html, body {
   width: 100vw !important;
   height: 100vh !important;
   overflow: hidden !important;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: linear-gradient(135deg, #4A90E2 0%, #2E5C8A 100%) !important;
   background-attachment: fixed !important;
   background-image:
-    radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(255,255,255,0.05) 0%, transparent 50%) !important;
+    radial-gradient(circle at 25% 25%, rgba(255,255,255,0.08) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(255,255,255,0.04) 0%, transparent 50%) !important;
 }
 
 .desktop-title {
   position: absolute !important;
-  top: 16px !important;
-  left: 16px !important;
+  top: 32px !important;
+  left: 32px !important;
   color: white !important;
+  padding: 16px;
 }
 
 .desktop-version {
@@ -80,43 +85,56 @@ html, body {
 }
 
 .retro-button {
-  background: var(--button-bg);
-  border: 2px outset var(--window-border);
-  padding: 4px 8px;
-  font-family: 'MS Sans Serif', sans-serif;
-  font-size: 11px;
+  background: linear-gradient(180deg, #FFFFFF 0%, #E8E8E8 100%);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
-  min-width: 75px;
+  min-width: 80px;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .retro-button:hover {
-  background: #d4d4d4;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .retro-button:active {
-  border: 2px inset var(--window-border);
-  background: #a0a0a0;
+  background: linear-gradient(180deg, #E0E0E0 0%, #D0D0D0 100%);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 
 .window-frame {
   background: var(--window-bg);
-  border: 2px outset var(--window-border);
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  border: 1px solid #B0B0B0;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
 }
 
 .window-title-bar {
-  background: linear-gradient(90deg, #0080ff 0%, #004080 100%);
-  color: white;
-  padding: 2px 4px;
-  font-size: 11px;
+  background: linear-gradient(180deg, #4A8FBF 0%, #3A7FAF 100%);
+  color: #FFFFFF;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
   font-weight: bold;
-  border-bottom: 1px solid var(--window-border-dark);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 28px;
 }
 
 .taskbar {
-  background: var(--taskbar-bg);
-  border-top: 1px solid var(--window-border-light);
-  border-bottom: 1px solid var(--window-border-dark);
+  background: linear-gradient(180deg, #E8E8E8 0%, #D0D0D0 100%);
+  border-top: 1px solid #FFFFFF;
+  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.1);
   height: 40px;
   position: fixed;
   bottom: 0;
@@ -129,59 +147,75 @@ html, body {
 }
 
 .taskbar-button {
-  background: var(--button-bg);
-  border: 1px outset var(--window-border);
-  padding: 6px 12px;
+  background: linear-gradient(180deg, #F5F5F5 0%, #E0E0E0 100%);
+  border: 1px solid #B0B0B0;
+  border-radius: 3px;
+  padding: 5px 14px;
   font-size: 11px;
+  font-family: 'Courier New', monospace;
   cursor: pointer;
   min-width: 80px;
   text-align: center;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 .taskbar-button:hover {
-  background: #d4d4d4;
+  background: linear-gradient(180deg, #FAFAFA 0%, #E8E8E8 100%);
+  border-color: #999;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
 .taskbar-button.active {
-  border: 1px inset var(--window-border);
-  background: #a0a0a0;
+  background: linear-gradient(180deg, #B8E6B8 0%, #A0D4A0 100%);
+  border-color: #7CB87C;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  color: #1A4D1A;
+  font-weight: bold;
 }
 
 .progress-bar {
-  background: var(--window-bg);
-  border: 1px inset var(--window-border);
-  height: 16px;
+  background: #E8E8E8;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  height: 18px;
   position: relative;
   overflow: hidden;
 }
 
 .progress-bar-fill {
-  background: #0080ff;
+  background: linear-gradient(90deg, #0055D4 0%, #0077FF 100%);
   height: 100%;
   transition: width 0.3s ease;
+  border-radius: 8px;
 }
 
 /* Start Button */
 .start-button {
-  background: var(--button-bg);
-  border: 1px outset var(--window-border);
-  padding: 4px 16px;
-  font-size: 11px;
+  background: linear-gradient(180deg, #B8E6B8 0%, #A0D4A0 100%);
+  border: 1px solid #7CB87C;
+  border-radius: 3px;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
   cursor: pointer;
-  height: 28px;
+  height: 30px;
   display: flex;
   align-items: center;
-  color: black;
+  color: #1A4D1A;
   font-weight: bold;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 .start-button:hover {
-  background: #d4d4d4;
+  background: linear-gradient(180deg, #C8F0C8 0%, #B0DEB0 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .start-button.active {
-  border: 1px inset var(--window-border);
-  background: #a0a0a0;
+  background: linear-gradient(180deg, #A0D4A0 0%, #90C490 100%);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
 /* Start Menu */
@@ -189,19 +223,23 @@ html, body {
   position: absolute;
   bottom: 100%;
   left: 0;
-  width: 200px;
-  background: var(--window-bg);
-  border: 2px outset var(--window-border);
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  font-size: 11px;
+  width: 220px;
+  background: linear-gradient(180deg, #F5F5F5 0%, #E8E8E8 100%);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
   z-index: 1000;
+  overflow: visible;
 }
 
 .start-menu-header {
-  background: linear-gradient(90deg, #0080ff 0%, #004080 100%);
-  color: white;
-  padding: 8px;
-  font-weight: bold;
+  background: linear-gradient(180deg, #4A8FBF 0%, #3A7FAF 100%);
+  color: #FFFFFF;
+  padding: 10px 12px;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .start-menu-user {
@@ -212,12 +250,17 @@ html, body {
 
 .start-menu-separator {
   height: 1px;
-  background: var(--window-border-dark);
-  margin: 2px 0;
+  background: rgba(0, 0, 0, 0.1);
+  margin: 4px 0;
 }
 
 .start-menu-section {
   padding: 2px 0;
+  position: relative;
+}
+
+.start-menu-section > .relative {
+  position: relative;
 }
 
 .start-menu-title {
@@ -233,18 +276,48 @@ html, body {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 8px;
+  padding: 7px 12px;
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 12px;
   text-align: left;
-  color: black;
+  color: #333;
+  transition: all 0.1s ease;
+  border-radius: 2px;
+  margin: 0 4px;
+  width: calc(100% - 8px);
 }
 
 .start-menu-item:hover {
-  background: #0080ff;
-  color: white;
+  background: linear-gradient(90deg, #B8E6B8 0%, #A0D4A0 100%);
+  color: #1A4D1A;
+}
+
+/* Submenu Styling */
+.submenu {
+  position: absolute !important;
+  left: 100% !important;
+  top: 0 !important;
+  margin-left: 4px !important;
+  min-width: 220px !important;
+  max-width: 280px !important;
+  max-height: 400px !important;
+  overflow-y: auto !important;
+  background: linear-gradient(180deg, #F5F5F5 0%, #E8E8E8 100%) !important;
+  border: 1px solid rgba(0, 0, 0, 0.2) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+  font-family: 'Courier New', monospace !important;
+  padding: 4px 0 !important;
+  z-index: 1001 !important;
+  display: block !important;
+}
+
+.submenu .start-menu-item {
+  font-size: 11px !important;
+  margin: 0 !important;
+  width: 100% !important;
 }
 
 /* Desktop Icons */
@@ -396,38 +469,161 @@ html, body {
 
 /* Browser Window */
 .browser-toolbar {
-  background: #f0f0f0;
-  border-bottom: 1px solid #ccc;
+  background: linear-gradient(180deg, #F5F5F5 0%, #E8E8E8 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .browser-nav-button {
-  background: var(--button-bg);
-  border: 1px outset var(--window-border);
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
   padding: 4px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
+  transition: all 0.15s ease;
 }
 
 .browser-nav-button:hover {
-  background: #d4d4d4;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .browser-nav-button:active {
-  border: 1px inset var(--window-border);
-  background: #a0a0a0;
+  background: rgba(230, 230, 230, 0.8);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .browser-address-bar {
   flex: 1;
   background: white;
-  border: 1px inset var(--window-border);
-  padding: 4px 8px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  padding: 6px 10px;
   display: flex;
   align-items: center;
   margin-left: 8px;
-  font-family: 'MS Sans Serif', sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 12px;
+}
+
+/* Menu Bar */
+.menu-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 24px;
+  background: linear-gradient(180deg, #FFFFFF 0%, #E8E8E8 100%);
+  border-bottom: 1px solid #999;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 1000;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.menu-bar-item {
+  padding: 2px 12px;
+  cursor: pointer;
+  transition: background 0.1s ease;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  color: #000;
+}
+
+.menu-bar-item.apple-menu {
+  padding: 2px 8px;
+}
+
+.menu-bar-item:hover,
+.menu-bar-item.active {
+  background: #0055D4;
+  color: white;
+}
+
+.menu-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+/* Loading Screen */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #4A90E2 0%, #2E5C8A 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.loading-content {
+  background: #E8E8E8;
+  border: 2px solid #000;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+  padding: 40px 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.loading-logo {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+.loading-logo svg {
+  image-rendering: pixelated;
+}
+
+.loading-title {
+  font-family: 'Chicago', 'Charcoal', 'Helvetica', sans-serif;
+  font-size: 36px;
+  font-weight: bold;
+  color: #000;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.loading-subtitle {
+  font-family: 'Geneva', 'Helvetica', sans-serif;
+  font-size: 14px;
+  color: #000;
+  text-align: center;
+  margin-top: -10px;
+}
+
+.loading-progress-container {
+  width: 240px;
+  height: 20px;
+  background: #FFF;
+  border: 2px solid #000;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4A90E2 0%, #2E5C8A 100%);
+  transition: width 0.3s ease;
+}
+
+.pixelated {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
 }

@@ -33,6 +33,15 @@ export function Taskbar({ activeWindows, onToggleWindow, useInteractiveBackgroun
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const startMenuRef = useRef<HTMLDivElement>(null);
 
+  // Debug logging
+  useEffect(() => {
+    console.log('Applications submenu state:', showApplicationsSubmenu);
+  }, [showApplicationsSubmenu]);
+
+  useEffect(() => {
+    console.log('Documents submenu state:', showDocumentsSubmenu);
+  }, [showDocumentsSubmenu]);
+
   // Close start menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -71,20 +80,25 @@ export function Taskbar({ activeWindows, onToggleWindow, useInteractiveBackgroun
             <div className="start-menu-section">
               {/* Applications submenu */}
               <div
-                className="start-menu-item relative"
+                className="relative"
                 onMouseEnter={() => setShowApplicationsSubmenu(true)}
                 onMouseLeave={() => setShowApplicationsSubmenu(false)}
               >
-                <div className="flex items-center justify-between w-full">
-                  <div className="flex items-center gap-2">
-                    <Image src="/rocket.png" alt="" width={16} height={16} />
-                    <span>Applications</span>
+                <div className="start-menu-item">
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                      <Image src="/rocket.png" alt="" width={16} height={16} />
+                      <span>Applications</span>
+                    </div>
+                    <ChevronRight size={12} />
                   </div>
-                  <ChevronRight size={12} />
                 </div>
 
                 {showApplicationsSubmenu && (
-                  <div className="absolute left-full top-0 ml-1 w-56 max-h-80 overflow-y-auto bg-gray-200 border-2 border-gray-400 shadow-md z-20" style={{ bottom: 'auto', transform: 'translateY(-20px)' }}>
+                  <div className="submenu"
+                    onMouseEnter={() => setShowApplicationsSubmenu(true)}
+                    onMouseLeave={() => setShowApplicationsSubmenu(false)}
+                  >
                     <button
                       className="start-menu-item w-full"
                       onClick={() => {
@@ -179,22 +193,27 @@ export function Taskbar({ activeWindows, onToggleWindow, useInteractiveBackgroun
 
               {/* Documents submenu */}
               <div
-                className="start-menu-item relative"
+                className="relative"
                 onMouseEnter={() => setShowDocumentsSubmenu(true)}
                 onMouseLeave={() => setShowDocumentsSubmenu(false)}
               >
-                <div className="flex items-center justify-between w-full">
-                  <div className="flex items-center gap-2">
-                    <Folder size={16} />
-                    <span>Documents</span>
+                <div className="start-menu-item">
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                      <Folder size={16} />
+                      <span>Documents</span>
+                    </div>
+                    <ChevronRight size={12} />
                   </div>
-                  <ChevronRight size={12} />
                 </div>
 
                 {showDocumentsSubmenu && (
-                  <div className="absolute left-full top-0 ml-1 w-56 bg-gray-200 border-2 border-gray-400 shadow-md z-20">
+                  <div className="submenu"
+                    onMouseEnter={() => setShowDocumentsSubmenu(true)}
+                    onMouseLeave={() => setShowDocumentsSubmenu(false)}
+                  >
                     <button
-                      className="start-menu-item w-full hover:bg-blue-500 hover:text-white"
+                      className="start-menu-item w-full"
                       onClick={() => {
                         onToggleWindow('document');
                         setIsStartMenuOpen(false);
@@ -202,10 +221,21 @@ export function Taskbar({ activeWindows, onToggleWindow, useInteractiveBackgroun
                       }}
                     >
                       <Image src="/document.png" alt="" width={16} height={16} />
-                      <span>Fountain Frontline OS.pdf</span>
+                      <span>Fountain Frontline OS</span>
                     </button>
                     <button
-                      className="start-menu-item w-full hover:bg-blue-500 hover:text-white"
+                      className="start-menu-item w-full"
+                      onClick={() => {
+                        onToggleWindow('presentation');
+                        setIsStartMenuOpen(false);
+                        setShowDocumentsSubmenu(false);
+                      }}
+                    >
+                      <Image src="/slides.png" alt="" width={16} height={16} />
+                      <span>Fountain Summit</span>
+                    </button>
+                    <button
+                      className="start-menu-item w-full"
                       onClick={() => {
                         onToggleWindow('document2');
                         setIsStartMenuOpen(false);
@@ -213,20 +243,8 @@ export function Taskbar({ activeWindows, onToggleWindow, useInteractiveBackgroun
                       }}
                     >
                       <Image src="/document.png" alt="" width={16} height={16} />
-                      <span>Agentic AI for Frontline Workforces - Fountain.pdf</span>
+                      <span>AI Whitepaper</span>
                     </button>
-                    <div className="start-menu-item w-full text-gray-500">
-                      <Image src="/document.png" alt="" width={16} height={16} />
-                      <span>Product_Strategy_2024.pdf</span>
-                    </div>
-                    <div className="start-menu-item w-full text-gray-500">
-                      <Image src="/document.png" alt="" width={16} height={16} />
-                      <span>AI_Integration_Plan.md</span>
-                    </div>
-                    <div className="start-menu-item w-full text-gray-500">
-                      <Image src="/document.png" alt="" width={16} height={16} />
-                      <span>Team_Roadmap_Q1.txt</span>
-                    </div>
                   </div>
                 )}
               </div>

@@ -14,7 +14,7 @@ export function SpotifyPlayer({ onClose }: SpotifyPlayerProps) {
   const playerRef = useRef<HTMLDivElement>(null);
 
   // Default playlist
-  const playlistId = '3qH7s11IkCeRRQM3cSK7hR'; // T'was September of 2025
+  const playlistId = '5JaEX5yzdYiU3rGPmLOjzc';
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -59,8 +59,9 @@ export function SpotifyPlayer({ onClose }: SpotifyPlayerProps) {
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
-        width: '400px',
-        height: '152px',
+        width: '100%',
+        maxWidth: '500px',
+        height: '352px',
         zIndex: 10
       }}
     >
